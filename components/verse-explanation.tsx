@@ -1,57 +1,107 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { Sparkles } from 'lucide-react'
+import { useEffect, useRef, useState, useCallback } from 'react'
+import { Sparkles, RefreshCw } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 
-interface Explanations {
-  simple: string
-  literary: string
-  linguistic: string
-}
+type ExplainTab = 'simple' | 'literary' | 'linguistic'
 
 const TABS = [
-  { id: 'simple', label: 'تبسيط' },
-  { id: 'literary', label: 'تحليل أدبي' },
-  { id: 'linguistic', label: 'تحليل لغوي' },
-] as const
+  { id: 'simple' as const, label: 'تبسيط' },
+  { id: 'literary' as const, label: 'تحليل أدبي' },
+  { id: 'linguistic' as const, label: 'تحليل لغوي' },
+]
 
-function Streamer({ text }: { text: string }) {
-  const [shown, setShown] = useState('')
-  const [done, setDone] = useState(false)
-  const ref = useRef(text)
+export function VerseExplanation({
+  verseId,
+  preloaded,
+}: {
+  verseId: string
+  preloaded?: Record<string, string>
+}) {
+  const [tab, setTab] = useState<ExplainTab>('simple')
+  const [texts, setTexts] = useState<Record<ExplainTab, string>>({
+    simple: preloaded?.simple || '',
+    literary: preloaded?.literary || '',
+    linguistic: preloaded?.linguistic || '',
+  })
+  const [loading, setLoading] = useState<Record<ExplainTab, boolean>>({
+    simple: false, literary: false, linguistic: false,
+  })
+  const [started, setStarted] = useState<Record<ExplainTab, boolean>>({
+    simple: !!preloaded?.simple,
+    literary: !!preloaded?.literary,
+    linguistic: !!preloaded?.linguistic,
+  })
+  const abortRefs = useRef<Record<ExplainTab, AbortController | null>>({
+    simple: null, literary: null, linguistic: null,
+  })
 
-  useEffect(() => {
-    ref.current = text
-    setShown('')
-    setDone(false)
-    let i = 0
-    const id = setInterval(() => {
-      i += 2
-      setShown(text.slice(0, i))
-      if (i >= text.length) {
-        clearInterval(id)
-        setDone(true)
+  const streamExplanation = useCallback(async (type: ExplainTab) => {
+    if (started[type] && texts[type]) return
+
+    abortRefs.current[type]?.abort()
+    const ctrl = new AbortController()
+    abortRefs.current[type] = ctrl
+
+    setStarted(p => ({ ...p, [type]: true }))
+    setLoading(p => ({ ...p, [type]: true }))
+    setTexts(p => ({ ...p, [type]: '' }))
+
+    try {
+      const res = await fetch(`/api/v1/ai/verses/${verseId}/explain?type=${type}`, {
+        signal: ctrl.signal,
+      })
+      if (!res.ok || !res.body) {
+        setTexts(p => ({ ...p, [type]: 'حدث خطأ أثناء توليد الشرح. تأكد من تشغيل الخادم.' }))
+        return
       }
-    }, 18)
-    return () => clearInterval(id)
-  }, [text])
 
-  return (
-    <p
-      className={cn(
-        'font-serif text-lg leading-loose text-text-secondary',
-        !done && 'typing-cursor',
-      )}
-    >
-      {shown}
-    </p>
-  )
-}
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
 
-export function VerseExplanation({ explanations }: { explanations: Explanations }) {
-  const [tab, setTab] = useState<(typeof TABS)[number]['id']>('simple')
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split('\n')
+        buffer = lines.pop() ?? ''
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          try {
+            const json = JSON.parse(line.slice(6))
+            if (json.done) break
+            if (json.text) {
+              setTexts(p => ({ ...p, [type]: p[type] + json.text }))
+            }
+            if (json.error) {
+              setTexts(p => ({ ...p, [type]: json.error }))
+            }
+          } catch { /* skip */ }
+        }
+      }
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        setTexts(p => ({ ...p, [type]: 'حدث خطأ أثناء الاتصال بالخادم.' }))
+      }
+    } finally {
+      setLoading(p => ({ ...p, [type]: false }))
+    }
+  }, [verseId, started, texts])
+
+  const handleTab = (type: ExplainTab) => {
+    setTab(type)
+    if (!started[type]) streamExplanation(type)
+  }
+
+  const regenerate = (type: ExplainTab) => {
+    setStarted(p => ({ ...p, [type]: false }))
+    setTexts(p => ({ ...p, [type]: '' }))
+    setTimeout(() => streamExplanation(type), 50)
+  }
 
   return (
     <section className="rounded-2xl border border-border bg-surface/60 p-6 sm:p-8">
@@ -60,7 +110,7 @@ export function VerseExplanation({ explanations }: { explanations: Explanations 
         شرح البيت
       </h2>
 
-      <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
+      <Tabs value={tab} onValueChange={(v) => handleTab(v as ExplainTab)}>
         <TabsList className="mb-6 flex w-full gap-1 rounded-full border border-border bg-surface p-1">
           {TABS.map((t) => (
             <TabsTrigger
@@ -75,7 +125,33 @@ export function VerseExplanation({ explanations }: { explanations: Explanations 
 
         {TABS.map((t) => (
           <TabsContent key={t.id} value={t.id} className="mt-0">
-            <Streamer text={explanations[t.id]} />
+            {!started[t.id] ? (
+              <button
+                onClick={() => streamExplanation(t.id)}
+                className="flex items-center gap-2 rounded-xl bg-[rgba(200,164,85,0.08)] px-4 py-2.5 text-sm font-medium text-gold-light transition-all hover:bg-[rgba(200,164,85,0.15)]"
+              >
+                <Sparkles className="size-4" />
+                توليد الشرح
+              </button>
+            ) : (
+              <div>
+                <p className={cn(
+                  'font-serif text-lg leading-loose text-text-secondary',
+                  loading[t.id] && 'typing-cursor',
+                )}>
+                  {texts[t.id]}
+                </p>
+                {!loading[t.id] && texts[t.id] && (
+                  <button
+                    onClick={() => regenerate(t.id)}
+                    className="mt-3 flex items-center gap-1.5 text-xs text-text-muted transition-colors hover:text-gold-light"
+                  >
+                    <RefreshCw className="size-3" />
+                    توليد شرح آخر
+                  </button>
+                )}
+              </div>
+            )}
           </TabsContent>
         ))}
       </Tabs>

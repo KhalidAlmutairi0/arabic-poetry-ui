@@ -127,6 +127,15 @@ export default async function PoetPage({ params }: { params: Promise<{ slug: str
                 </Link>
               ))}
             </div>
+            {poet.poem_count > 12 && (
+              <Link
+                href={`/search?q=${encodeURIComponent(poet.name_ar)}`}
+                className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-border bg-surface px-5 py-3 text-sm font-medium text-text-secondary transition-all duration-200 hover:border-[var(--border-strong)] hover:text-gold-light"
+              >
+                عرض جميع القصائد ({formatCount(poet.poem_count)})
+                <ChevronLeft className="size-4" />
+              </Link>
+            )}
           </section>
         )}
       </div>

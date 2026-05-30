@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { getPoets } from '@/lib/api'
-import { ERA_ORDER, ERA_LABELS, eraLabel, formatCount } from '@/lib/data'
+import { ERA_ORDER, ERA_LABELS, eraLabel, formatCount, toArabicNumerals } from '@/lib/data'
 import { cn } from '@/lib/utils'
 
 export const revalidate = 60
@@ -14,11 +14,12 @@ export const metadata: Metadata = {
 export default async function PoetsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ era?: string }>
+  searchParams: Promise<{ era?: string; page?: string }>
 }) {
-  const { era } = await searchParams
+  const { era, page: pageStr } = await searchParams
+  const page = parseInt(pageStr || '1', 10)
   const activeEra = era && ERA_LABELS[era] ? era : null
-  const data = await getPoets({ era: activeEra || undefined, limit: 24 })
+  const data = await getPoets({ era: activeEra || undefined, page, limit: 24 })
   const poets = data?.items || []
   const total = data?.total || 0
 
@@ -84,6 +85,31 @@ export default async function PoetsPage({
       {poets.length === 0 && (
         <div className="mt-8 rounded-2xl border border-dashed border-border bg-surface/40 p-12 text-center">
           <p className="font-serif text-xl text-text-secondary">لا يوجد شعراء بعد</p>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {total > 24 && (
+        <div className="mt-10 flex items-center justify-center gap-3">
+          {page > 1 && (
+            <Link
+              href={`/poets?${activeEra ? `era=${activeEra}&` : ''}page=${page - 1}`}
+              className="rounded-xl border border-border bg-surface px-5 py-2.5 text-sm font-medium text-text-secondary transition-all duration-200 hover:border-[var(--border-strong)] hover:text-gold-light"
+            >
+              السابق
+            </Link>
+          )}
+          <span className="text-sm text-text-muted">
+            {toArabicNumerals(page)} / {toArabicNumerals(Math.ceil(total / 24))}
+          </span>
+          {page * 24 < total && (
+            <Link
+              href={`/poets?${activeEra ? `era=${activeEra}&` : ''}page=${page + 1}`}
+              className="rounded-xl border border-border bg-surface px-5 py-2.5 text-sm font-medium text-text-secondary transition-all duration-200 hover:border-[var(--border-strong)] hover:text-gold-light"
+            >
+              التالي
+            </Link>
+          )}
         </div>
       )}
     </div>
