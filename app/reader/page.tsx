@@ -2,14 +2,9 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 
-// ─── POEM DATA ──────────────────────────────────────────────────────────────
-
 const poems = [
   {
-    id: 1,
-    title: "على قدر أهل العزم",
-    poet: "المتنبي",
-    era: "القرن الرابع الهجري",
+    id: 1, title: "على قدر أهل العزم", poet: "المتنبي", era: "القرن الرابع الهجري",
     verses: [
       { sadr: "عَلى قَدرِ أَهلِ العَزمِ تَأتي العَزائِمُ", ajuz: "وَتَأتي عَلى قَدرِ الكِرامِ المَكارِمُ" },
       { sadr: "وَتَعظُمُ في عَينِ الصَغيرِ صِغارُها", ajuz: "وَتَصغُرُ في عَينِ العَظيمِ العَظائِمُ" },
@@ -21,10 +16,7 @@ const poems = [
     ],
   },
   {
-    id: 2,
-    title: "معلّقة امرئ القيس",
-    poet: "امرؤ القيس",
-    era: "العصر الجاهلي",
+    id: 2, title: "معلّقة امرئ القيس", poet: "امرؤ القيس", era: "العصر الجاهلي",
     verses: [
       { sadr: "قِفا نَبكِ مِن ذِكرى حَبيبٍ وَمَنزِلِ", ajuz: "بِسِقطِ اللِوى بَينَ الدَخولِ فَحَومَلِ" },
       { sadr: "فَتوضِحَ فَالمِقراةِ لَم يَعفُ رَسمُها", ajuz: "لِما نَسَجَتها مِن جَنوبٍ وَشَمأَلِ" },
@@ -35,10 +27,7 @@ const poems = [
     ],
   },
   {
-    id: 3,
-    title: "ترجمان الأشواق",
-    poet: "ابن عربي",
-    era: "القرن السابع الهجري",
+    id: 3, title: "ترجمان الأشواق", poet: "ابن عربي", era: "القرن السابع الهجري",
     verses: [
       { sadr: "لَقَد صارَ قَلبي قابِلاً كُلَّ صورَةٍ", ajuz: "فَمَرعىً لِغِزلانٍ وَدَيرٌ لِرُهبانِ" },
       { sadr: "وَبَيتٌ لِأَوثانٍ وَكَعبَةُ طائِفٍ", ajuz: "وَأَلواحُ تَوراةٍ وَمُصحَفُ قُرآنِ" },
@@ -49,10 +38,7 @@ const poems = [
     ],
   },
   {
-    id: 4,
-    title: "رثاء صخر",
-    poet: "الخنساء",
-    era: "العصر الجاهلي",
+    id: 4, title: "رثاء صخر", poet: "الخنساء", era: "العصر الجاهلي",
     verses: [
       { sadr: "قَذىً بِعَينِكِ أَم بِالعَينِ عُوّارُ", ajuz: "أَم ذَرَفَت إِذ خَلَت مِن أَهلِها الدارُ" },
       { sadr: "كَأَنَّ عَيني لِذِكراهُ إِذا خَطَرَت", ajuz: "فَيضٌ يَسيلُ عَلى الخَدَّينِ مِدرارُ" },
@@ -63,10 +49,7 @@ const poems = [
     ],
   },
   {
-    id: 5,
-    title: "دع عنك لومي",
-    poet: "أبو نواس",
-    era: "القرن الثاني الهجري",
+    id: 5, title: "دع عنك لومي", poet: "أبو نواس", era: "القرن الثاني الهجري",
     verses: [
       { sadr: "دَع عَنكَ لَومي فَإِنَّ اللَومَ إِغراءُ", ajuz: "وَداوِني بِالَّتي كانَت هِيَ الداءُ" },
       { sadr: "صَفراءُ لا تَنزِلُ الأَحزانُ ساحَتَها", ajuz: "لَو مَسَّها حَجَرٌ مَسَّتهُ سَرّاءُ" },
@@ -78,41 +61,7 @@ const poems = [
   },
 ]
 
-// ─── DECORATIVE SVGs ────────────────────────────────────────────────────────
-
-const StarDivider = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.4 }}>
-    <path
-      d="M12 0L14.59 8.41L23 12L14.59 15.59L12 24L9.41 15.59L1 12L9.41 8.41L12 0Z"
-      fill="var(--gold-muted)"
-    />
-  </svg>
-)
-
-const PoemDivider = () => (
-  <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "40px 0" }}>
-    <div style={{ flex: 1, height: 1, background: "linear-gradient(to left, var(--gold-primary), transparent)" }} />
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <rect x="10" y="0" width="14.14" height="14.14" rx="2" transform="rotate(45 10 0)" fill="none" stroke="var(--gold-primary)" strokeWidth="1" opacity="0.6" />
-    </svg>
-    <div style={{ flex: 1, height: 1, background: "linear-gradient(to right, var(--gold-primary), transparent)" }} />
-  </div>
-)
-
-const CornerOrnament = () => (
-  <div style={{ position: "absolute", bottom: 12, left: 12, opacity: 0.12 }}>
-    <svg width="28" height="28" viewBox="0 0 28 28">
-      <path d="M14 0L17 11L28 14L17 17L14 28L11 17L0 14L11 11Z" fill="var(--gold-primary)" />
-    </svg>
-  </div>
-)
-
-// ─── ARABIC NUMERALS ────────────────────────────────────────────────────────
-
-const toArabicNum = (n: number) =>
-  n.toString().replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[parseInt(d)])
-
-// ─── MAIN COMPONENT ────────────────────────────────────────────────────────
+const toArabicNum = (n: number) => n.toString().replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[parseInt(d)])
 
 export default function PoetryReader() {
   const [view, setView] = useState<"browse" | "read">("browse")
@@ -121,706 +70,144 @@ export default function PoetryReader() {
   const [autoScroll, setAutoScroll] = useState(false)
   const [showAll, setShowAll] = useState(false)
   const [transitioning, setTransitioning] = useState(false)
-  const [transitionDir, setTransitionDir] = useState<"in" | "out">("in")
-  const [mounted, setMounted] = useState(false)
+  const [transDir, setTransDir] = useState<"in" | "out">("in")
+  const [ready, setReady] = useState(false)
+  const [hovering, setHovering] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const autoScrollRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const poemAreaRef = useRef<HTMLDivElement>(null)
-  const [hoveringPoem, setHoveringPoem] = useState(false)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  useEffect(() => { setMounted(true) }, [])
+  useEffect(() => { setReady(true) }, [])
 
-  // Auto-scroll
   useEffect(() => {
-    if (autoScroll && view === "read" && !hoveringPoem) {
-      autoScrollRef.current = setInterval(() => {
-        scrollRef.current?.scrollBy({ top: 1 })
-      }, 28)
+    if (autoScroll && view === "read" && !hovering) {
+      intervalRef.current = setInterval(() => { scrollRef.current?.scrollBy({ top: 1 }) }, 28)
     }
-    return () => {
-      if (autoScrollRef.current) clearInterval(autoScrollRef.current)
-    }
-  }, [autoScroll, view, hoveringPoem])
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+  }, [autoScroll, view, hovering])
 
-  const openPoem = useCallback((index: number) => {
-    setActivePoem(index)
-    setTransitionDir("in")
+  const openPoem = useCallback((i: number) => {
+    setActivePoem(i)
+    setTransDir("in")
     setTransitioning(true)
     setView("read")
     scrollRef.current?.scrollTo({ top: 0 })
     setTimeout(() => setTransitioning(false), 400)
   }, [])
 
-  const navigatePoem = useCallback((dir: -1 | 1) => {
-    setTransitionDir("out")
+  const nav = useCallback((dir: -1 | 1) => {
+    setTransDir("out")
     setTransitioning(true)
     setTimeout(() => {
-      setActivePoem((p) => {
-        const next = p + dir
-        if (next < 0) return poems.length - 1
-        if (next >= poems.length) return 0
-        return next
-      })
-      setTransitionDir("in")
+      setActivePoem(p => { const n = p + dir; return n < 0 ? poems.length - 1 : n >= poems.length ? 0 : n })
+      setTransDir("in")
       scrollRef.current?.scrollTo({ top: 0 })
       setTimeout(() => setTransitioning(false), 350)
     }, 220)
   }, [])
 
   const poem = poems[activePoem]
-
   return (
     <>
-      {/* ── Injected Styles ── */}
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;500;600;700&display=swap');
-
-        :root {
-          --bg-deep: #0d0b08;
-          --bg-card: #1a1610;
-          --bg-hover: #221e14;
-          --gold-primary: #c9a84c;
-          --gold-light: #e8d5a3;
-          --gold-muted: #8a6f35;
-          --divider: #c9a84c22;
-          --glow: #c9a84c18;
-        }
-
-        .poetry-reader {
-          font-family: 'Amiri', serif;
-          background: var(--bg-deep);
-          color: var(--gold-light);
-          min-height: 100vh;
-          position: relative;
-        }
-
-        .poetry-reader::before {
-          content: '';
-          position: fixed;
-          inset: 0;
-          opacity: 0.035;
-          pointer-events: none;
-          z-index: 1;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-          background-size: 200px 200px;
-        }
-
-        .poetry-reader::after {
-          content: '';
-          position: fixed;
-          inset: 0;
-          pointer-events: none;
-          z-index: 1;
-          background: radial-gradient(ellipse at center, transparent 50%, #0d0b08cc 100%);
-        }
-
-        .poetry-reader * { position: relative; z-index: 2; }
-
-        @keyframes fadeSlideIn {
-          from { opacity: 0; transform: translateY(14px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-
-        @keyframes poemIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes poemOut {
-          from { opacity: 1; transform: translateY(0); }
-          to { opacity: 0; transform: translateY(-20px); }
-        }
-
-        @keyframes modalIn {
-          from { opacity: 0; transform: scale(0.96); }
-          to { opacity: 1; transform: scale(1); }
-        }
-
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-
-        .verse-row:hover {
-          background: var(--glow);
-          border-radius: 8px;
-        }
-
-        .card-poem:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 12px 40px #00000060;
-          border-color: var(--gold-primary) !important;
-        }
-
-        .control-btn {
-          transition: all 200ms ease;
-          cursor: pointer;
-          border: none;
-          outline: none;
-        }
-
-        .control-btn:hover {
-          background: var(--gold-primary) !important;
-          color: var(--bg-deep) !important;
-        }
-
-        .scroll-container::-webkit-scrollbar { width: 4px; }
-        .scroll-container::-webkit-scrollbar-track { background: transparent; }
-        .scroll-container::-webkit-scrollbar-thumb { background: var(--gold-muted); border-radius: 2px; }
-      `}</style>
-
-      <div className="poetry-reader" ref={scrollRef} style={{ overflowY: "auto", height: "100vh" }}>
-        {/* ── CONTROL BAR ── */}
-        <div
-          style={{
-            position: "sticky",
-            top: 0,
-            zIndex: 50,
-            background: "#0d0b0bcc",
-            backdropFilter: "blur(12px)",
-            borderBottom: "1px solid var(--divider)",
-            padding: "12px 24px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <div
-            style={{
-              fontFamily: "'Cinzel', serif",
-              fontSize: 22,
-              fontWeight: 600,
-              color: "var(--gold-primary)",
-              letterSpacing: "0.08em",
-              opacity: mounted ? 1 : 0,
-              transition: "opacity 500ms ease",
-              cursor: "pointer",
-            }}
-            onClick={() => { setView("browse"); setAutoScroll(false) }}
-          >
-            ديوان
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            {/* Font size */}
-            <div style={{ display: "flex", gap: 4 }}>
-              {[
-                { label: "ص", size: 22 },
-                { label: "م", size: 28 },
-                { label: "ك", size: 34 },
-              ].map((f) => (
-                <button
-                  key={f.size}
-                  className="control-btn"
-                  onClick={() => setFontSize(f.size)}
-                  style={{
-                    fontFamily: "'Amiri', serif",
-                    fontSize: 14,
-                    padding: "4px 14px",
-                    borderRadius: 20,
-                    background: fontSize === f.size ? "var(--gold-primary)" : "transparent",
-                    color: fontSize === f.size ? "var(--bg-deep)" : "var(--gold-muted)",
-                    border: fontSize === f.size ? "none" : "1px solid var(--gold-muted)",
-                    fontWeight: fontSize === f.size ? 700 : 400,
-                  }}
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Auto-scroll */}
+      <style>{CSS_TEXT}</style>
+      <div className="dr" ref={scrollRef}>
+        {/* ── TOP BAR ── */}
+        <div className="dr-bar">
+          <div className="dr-logo" onClick={() => { setView("browse"); setAutoScroll(false) }}>ديوان</div>
+          <div className="dr-controls">
+            {[{ l: "ص", s: 22 }, { l: "م", s: 28 }, { l: "ك", s: 34 }].map(f => (
+              <button key={f.s} className={`dr-pill ${fontSize === f.s ? "active" : ""}`} onClick={() => setFontSize(f.s)}>{f.l}</button>
+            ))}
             {view === "read" && (
-              <button
-                className="control-btn"
-                onClick={() => setAutoScroll(!autoScroll)}
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: "50%",
-                  background: autoScroll ? "var(--gold-primary)" : "transparent",
-                  color: autoScroll ? "var(--bg-deep)" : "var(--gold-muted)",
-                  border: autoScroll ? "none" : "1px solid var(--gold-muted)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 16,
-                  animation: autoScroll ? "pulse 2s ease infinite" : "none",
-                }}
-              >
-                ▼
-              </button>
+              <button className={`dr-circle ${autoScroll ? "active" : ""}`} onClick={() => setAutoScroll(!autoScroll)}>▼</button>
             )}
-
-            {/* View toggle */}
-            <button
-              className="control-btn"
-              onClick={() => {
-                if (view === "browse") {
-                  setShowAll(true)
-                } else {
-                  setView("browse")
-                  setAutoScroll(false)
-                }
-              }}
-              style={{
-                fontFamily: "'Amiri', serif",
-                fontSize: 14,
-                padding: "6px 20px",
-                borderRadius: 20,
-                background: "transparent",
-                color: "var(--gold-primary)",
-                border: "1px solid var(--gold-primary)",
-              }}
-            >
+            <button className="dr-pill outline" onClick={() => view === "browse" ? setShowAll(true) : (setView("browse"), setAutoScroll(false))}>
               {view === "browse" ? "عرض الكل" : "تصفح"}
             </button>
           </div>
         </div>
 
-        {/* ── BROWSE VIEW ── */}
+        {/* ── BROWSE ── */}
         {view === "browse" && (
-          <div style={{ maxWidth: 740, margin: "0 auto", padding: "48px 20px 80px" }}>
-            <div
-              style={{
-                textAlign: "center",
-                marginBottom: 56,
-                opacity: mounted ? 1 : 0,
-                transition: "opacity 600ms ease 200ms",
-              }}
-            >
-              <h1
-                style={{
-                  fontFamily: "'Cinzel', serif",
-                  fontSize: 14,
-                  letterSpacing: "0.25em",
-                  textTransform: "uppercase",
-                  color: "var(--gold-muted)",
-                  marginBottom: 8,
-                }}
-              >
-                مختارات
-              </h1>
-              <p
-                style={{
-                  fontFamily: "'Amiri', serif",
-                  fontSize: 18,
-                  color: "var(--gold-light)",
-                  opacity: 0.6,
-                }}
-                dir="rtl" lang="ar"
-              >
-                من عيون الشعر العربي
-              </p>
+          <div className="dr-content">
+            <div className="dr-header" style={{ opacity: ready ? 1 : 0 }}>
+              <div className="dr-sub">مختارات</div>
+              <div className="dr-tagline">من عيون الشعر العربي</div>
             </div>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-                gap: 28,
-              }}
-            >
+            <div className="dr-grid">
               {poems.map((p, i) => (
-                <div
-                  key={p.id}
-                  className="card-poem"
-                  onClick={() => openPoem(i)}
-                  style={{
-                    background: "var(--bg-card)",
-                    borderRadius: 12,
-                    padding: "32px 28px 28px",
-                    border: "1px solid var(--divider)",
-                    cursor: "pointer",
-                    transition: "all 250ms ease",
-                    position: "relative",
-                    overflow: "hidden",
-                    opacity: mounted ? 1 : 0,
-                    animation: mounted ? `fadeSlideIn 400ms ease ${i * 80 + 300}ms both` : "none",
-                  }}
-                  dir="rtl" lang="ar"
-                >
-                  <h3
-                    style={{
-                      fontFamily: "'Amiri', serif",
-                      fontSize: 24,
-                      fontWeight: 700,
-                      color: "var(--gold-primary)",
-                      marginBottom: 8,
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    {p.title}
-                  </h3>
-                  <p
-                    style={{
-                      fontFamily: "'Cinzel', serif",
-                      fontSize: 11,
-                      letterSpacing: "0.12em",
-                      color: "var(--gold-muted)",
-                      marginBottom: 20,
-                    }}
-                  >
-                    {p.poet} — {p.era}
-                  </p>
-
-                  {/* First verse preview */}
-                  <div
-                    style={{
-                      fontSize: 15,
-                      lineHeight: 2,
-                      color: "var(--gold-muted)",
-                      borderTop: "1px solid var(--divider)",
-                      paddingTop: 16,
-                    }}
-                  >
+                <div key={p.id} className="dr-card" onClick={() => openPoem(i)}
+                  style={{ animationDelay: `${i * 80 + 200}ms`, opacity: ready ? undefined : 0 }} dir="rtl" lang="ar">
+                  <div className="dr-card-title">{p.title}</div>
+                  <div className="dr-card-meta">{p.poet} — {p.era}</div>
+                  <div className="dr-card-preview">
                     <span>{p.verses[0].sadr}</span>
-                    <span style={{ margin: "0 12px", opacity: 0.3 }}>◆</span>
+                    <span className="dr-diamond">◆</span>
                     <span>{p.verses[0].ajuz}</span>
                   </div>
-
-                  <CornerOrnament />
+                  <div className="dr-ornament">✦</div>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* ── READING VIEW ── */}
+        {/* ── READING ── */}
         {view === "read" && (
-          <div
-            style={{ position: "relative" }}
-            onMouseEnter={() => setHoveringPoem(true)}
-            onMouseLeave={() => setHoveringPoem(false)}
-            ref={poemAreaRef}
-          >
-            {/* Prev / Next */}
-            <button
-              className="control-btn"
-              onClick={() => navigatePoem(1)}
-              style={{
-                position: "fixed",
-                right: 20,
-                top: "50%",
-                transform: "translateY(-50%)",
-                zIndex: 40,
-                width: 44,
-                height: 44,
-                borderRadius: "50%",
-                background: "var(--bg-card)",
-                color: "var(--gold-primary)",
-                border: "1px solid var(--divider)",
-                fontSize: 18,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              →
-            </button>
-            <button
-              className="control-btn"
-              onClick={() => navigatePoem(-1)}
-              style={{
-                position: "fixed",
-                left: 20,
-                top: "50%",
-                transform: "translateY(-50%)",
-                zIndex: 40,
-                width: 44,
-                height: 44,
-                borderRadius: "50%",
-                background: "var(--bg-card)",
-                color: "var(--gold-primary)",
-                border: "1px solid var(--divider)",
-                fontSize: 18,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              ←
-            </button>
+          <div onMouseEnter={() => setHovering(true)} onMouseLeave={() => setHovering(false)}>
+            <button className="dr-nav dr-nav-r" onClick={() => nav(1)}>→</button>
+            <button className="dr-nav dr-nav-l" onClick={() => nav(-1)}>←</button>
 
-            {/* Poem content */}
-            <div
-              style={{
-                maxWidth: 740,
-                margin: "0 auto",
-                padding: "56px 20px 100px",
-                animation: transitioning
-                  ? transitionDir === "out"
-                    ? "poemOut 200ms ease forwards"
-                    : "poemIn 300ms ease both"
-                  : "none",
-              }}
-              dir="rtl" lang="ar"
-            >
-              {/* Title */}
-              <div style={{ textAlign: "center", marginBottom: 48 }}>
-                <h2
-                  style={{
-                    fontFamily: "'Amiri', serif",
-                    fontSize: 32,
-                    fontWeight: 700,
-                    color: "var(--gold-primary)",
-                    lineHeight: 1.5,
-                    marginBottom: 12,
-                  }}
-                >
-                  {poem.title}
-                </h2>
-                <p
-                  style={{
-                    fontFamily: "'Cinzel', serif",
-                    fontSize: 12,
-                    letterSpacing: "0.15em",
-                    color: "var(--gold-muted)",
-                  }}
-                >
-                  {poem.poet} — {poem.era}
-                </p>
+            <div className={`dr-poem ${transitioning ? (transDir === "out" ? "out" : "in") : ""}`} dir="rtl" lang="ar">
+              <div className="dr-poem-header">
+                <h2 className="dr-poem-title">{poem.title}</h2>
+                <div className="dr-poem-meta">{poem.poet} — {poem.era}</div>
               </div>
 
-              {/* Verses */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                {poem.verses.map((v, i) => (
-                  <div key={i}>
-                    <div
-                      className="verse-row"
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        gap: 0,
-                        padding: "14px 16px",
-                        transition: "background 300ms ease",
-                        direction: "rtl",
-                        animation: `fadeSlideIn 400ms ease ${i * 80}ms both`,
-                        position: "relative",
-                      }}
-                    >
-                      {/* Verse number */}
-                      <span
-                        style={{
-                          position: "absolute",
-                          right: -32,
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          fontFamily: "'Amiri', serif",
-                          fontSize: 12,
-                          color: "var(--gold-muted)",
-                          opacity: 0.3,
-                        }}
-                      >
-                        {toArabicNum(i + 1)}
-                      </span>
-
-                      {/* الصدر */}
-                      <div
-                        style={{
-                          textAlign: "right",
-                          fontFamily: "'Amiri', serif",
-                          fontSize,
-                          lineHeight: 2.2,
-                          letterSpacing: "0.02em",
-                          color: "var(--gold-light)",
-                          paddingLeft: 16,
-                        }}
-                      >
-                        {v.sadr}
-                      </div>
-
-                      {/* العجز */}
-                      <div
-                        style={{
-                          textAlign: "left",
-                          fontFamily: "'Amiri', serif",
-                          fontSize,
-                          lineHeight: 2.2,
-                          letterSpacing: "0.02em",
-                          color: "var(--gold-light)",
-                          transform: "translateY(7px)",
-                          borderRight: "1px solid var(--divider)",
-                          paddingRight: 16,
-                        }}
-                      >
-                        {v.ajuz}
-                      </div>
-                    </div>
-
-                    {/* Star divider every 3 verses */}
-                    {(i + 1) % 3 === 0 && i < poem.verses.length - 1 && (
-                      <div style={{ display: "flex", justifyContent: "center", padding: "16px 0" }}>
-                        <StarDivider />
-                      </div>
-                    )}
+              {poem.verses.map((v, i) => (
+                <div key={i}>
+                  <div className="dr-verse" style={{ animationDelay: `${i * 80}ms` }}>
+                    <span className="dr-vnum">{toArabicNum(i + 1)}</span>
+                    <div className="dr-sadr" style={{ fontSize }}>{v.sadr}</div>
+                    <div className="dr-ajuz" style={{ fontSize }}>{v.ajuz}</div>
                   </div>
-                ))}
-              </div>
+                  {(i + 1) % 3 === 0 && i < poem.verses.length - 1 && (
+                    <div className="dr-star">✦</div>
+                  )}
+                </div>
+              ))}
             </div>
 
-            {/* Progress dots */}
-            <div
-              style={{
-                position: "fixed",
-                bottom: 28,
-                left: "50%",
-                transform: "translateX(-50%)",
-                display: "flex",
-                gap: 10,
-                zIndex: 40,
-              }}
-            >
+            <div className="dr-dots">
               {poems.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => {
-                    if (i !== activePoem) {
-                      setTransitionDir("out")
-                      setTransitioning(true)
-                      setTimeout(() => {
-                        setActivePoem(i)
-                        setTransitionDir("in")
-                        scrollRef.current?.scrollTo({ top: 0 })
-                        setTimeout(() => setTransitioning(false), 350)
-                      }, 220)
-                    }
-                  }}
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: "50%",
-                    background: i === activePoem ? "var(--gold-primary)" : "var(--gold-muted)",
-                    opacity: i === activePoem ? 1 : 0.35,
-                    border: "none",
-                    cursor: "pointer",
-                    transition: "all 300ms ease",
-                    padding: 0,
-                  }}
-                />
+                <button key={i} className={`dr-dot ${i === activePoem ? "active" : ""}`}
+                  onClick={() => { if (i !== activePoem) { setTransDir("out"); setTransitioning(true); setTimeout(() => { setActivePoem(i); setTransDir("in"); scrollRef.current?.scrollTo({ top: 0 }); setTimeout(() => setTransitioning(false), 350) }, 220) } }} />
               ))}
             </div>
           </div>
         )}
 
-        {/* ── "عرض الكل" MODAL ── */}
+        {/* ── MODAL ── */}
         {showAll && (
-          <div
-            className="scroll-container"
-            style={{
-              position: "fixed",
-              inset: 0,
-              zIndex: 100,
-              background: "#0d0b08f0",
-              backdropFilter: "blur(8px)",
-              overflowY: "auto",
-              animation: "modalIn 300ms ease both",
-            }}
-          >
-            {/* Close */}
-            <button
-              className="control-btn"
-              onClick={() => setShowAll(false)}
-              style={{
-                position: "sticky",
-                top: 24,
-                float: "left",
-                marginLeft: 24,
-                zIndex: 110,
-                width: 40,
-                height: 40,
-                borderRadius: "50%",
-                background: "var(--bg-card)",
-                color: "var(--gold-primary)",
-                border: "1px solid var(--divider)",
-                fontSize: 18,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              ✕
-            </button>
-
-            <div style={{ maxWidth: 740, margin: "0 auto", padding: "60px 20px 80px" }} dir="rtl" lang="ar">
+          <div className="dr-modal">
+            <button className="dr-modal-close" onClick={() => setShowAll(false)}>✕</button>
+            <div className="dr-modal-inner" dir="rtl" lang="ar">
               {poems.map((p, pi) => (
                 <div key={p.id}>
-                  {/* Title */}
-                  <div style={{ textAlign: "center", marginBottom: 36 }}>
-                    <h2
-                      style={{
-                        fontFamily: "'Amiri', serif",
-                        fontSize: 28,
-                        fontWeight: 700,
-                        color: "var(--gold-primary)",
-                        lineHeight: 1.5,
-                        marginBottom: 8,
-                      }}
-                    >
-                      {p.title}
-                    </h2>
-                    <p
-                      style={{
-                        fontFamily: "'Cinzel', serif",
-                        fontSize: 11,
-                        letterSpacing: "0.15em",
-                        color: "var(--gold-muted)",
-                      }}
-                    >
-                      {p.poet} — {p.era}
-                    </p>
+                  <div className="dr-poem-header">
+                    <h2 className="dr-poem-title" style={{ fontSize: 26 }}>{p.title}</h2>
+                    <div className="dr-poem-meta">{p.poet} — {p.era}</div>
                   </div>
-
-                  {/* Verses */}
                   {p.verses.map((v, vi) => (
-                    <div
-                      key={vi}
-                      className="verse-row"
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        padding: "12px 16px",
-                        transition: "background 300ms ease",
-                        direction: "rtl",
-                      }}
-                    >
-                      <div
-                        style={{
-                          textAlign: "right",
-                          fontFamily: "'Amiri', serif",
-                          fontSize: fontSize - 2,
-                          lineHeight: 2.2,
-                          letterSpacing: "0.02em",
-                          color: "var(--gold-light)",
-                          paddingLeft: 16,
-                        }}
-                      >
-                        {v.sadr}
-                      </div>
-                      <div
-                        style={{
-                          textAlign: "left",
-                          fontFamily: "'Amiri', serif",
-                          fontSize: fontSize - 2,
-                          lineHeight: 2.2,
-                          letterSpacing: "0.02em",
-                          color: "var(--gold-light)",
-                          transform: "translateY(7px)",
-                          borderRight: "1px solid var(--divider)",
-                          paddingRight: 16,
-                        }}
-                      >
-                        {v.ajuz}
-                      </div>
+                    <div key={vi} className="dr-verse static">
+                      <div className="dr-sadr" style={{ fontSize: fontSize - 2 }}>{v.sadr}</div>
+                      <div className="dr-ajuz" style={{ fontSize: fontSize - 2 }}>{v.ajuz}</div>
                     </div>
                   ))}
-
-                  {pi < poems.length - 1 && <PoemDivider />}
+                  {pi < poems.length - 1 && (
+                    <div className="dr-poem-divider">
+                      <div className="dr-line" /><span>◇</span><div className="dr-line" />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -830,3 +217,185 @@ export default function PoetryReader() {
     </>
   )
 }
+
+const CSS_TEXT = `
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;500;600;700&display=swap');
+
+.dr, .dr *, .dr *::before, .dr *::after {
+  margin: 0; padding: 0; box-sizing: border-box;
+  font-family: 'Amiri', serif !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+.dr {
+  position: fixed !important; inset: 0 !important; z-index: 99999 !important;
+  background: #0d0b08 !important; color: #e8d5a3 !important;
+  overflow-y: auto !important; overflow-x: hidden !important;
+}
+
+.dr::before {
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px;
+}
+.dr::after {
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 40%, #0d0b08dd 100%);
+}
+
+.dr > * { position: relative; z-index: 1; }
+
+/* ── BAR ── */
+.dr-bar {
+  position: sticky !important; top: 0; z-index: 50 !important;
+  background: #0d0b08dd !important; backdrop-filter: blur(16px);
+  border-bottom: 1px solid #c9a84c18;
+  padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+}
+.dr-logo {
+  font-family: 'Cinzel', serif !important; font-size: 24px; font-weight: 600;
+  color: #c9a84c; letter-spacing: 0.1em; cursor: pointer;
+  transition: opacity 0.3s;
+}
+.dr-logo:hover { opacity: 0.8; }
+.dr-controls { display: flex; align-items: center; gap: 8px; }
+
+.dr-pill {
+  font-family: 'Amiri', serif !important; font-size: 14px;
+  padding: 5px 16px; border-radius: 20px; cursor: pointer;
+  background: transparent; color: #8a6f35; border: 1px solid #8a6f3566;
+  transition: all 0.2s ease;
+}
+.dr-pill:hover, .dr-pill.active { background: #c9a84c !important; color: #0d0b08 !important; border-color: #c9a84c !important; font-weight: 700; }
+.dr-pill.outline { color: #c9a84c; border-color: #c9a84c; }
+.dr-pill.outline:hover { background: #c9a84c !important; color: #0d0b08 !important; }
+
+.dr-circle {
+  width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+  background: transparent; color: #8a6f35; border: 1px solid #8a6f3566;
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+  transition: all 0.2s;
+}
+.dr-circle:hover, .dr-circle.active { background: #c9a84c !important; color: #0d0b08 !important; border-color: #c9a84c !important; }
+.dr-circle.active { animation: pulse 2s ease infinite; }
+
+/* ── BROWSE ── */
+.dr-content { max-width: 760px; margin: 0 auto; padding: 56px 24px 80px; }
+.dr-header { text-align: center; margin-bottom: 56px; transition: opacity 0.6s 0.2s; }
+.dr-sub { font-family: 'Cinzel', serif !important; font-size: 13px; letter-spacing: 0.3em; color: #8a6f35; margin-bottom: 10px; text-transform: uppercase; }
+.dr-tagline { font-size: 18px; color: #e8d5a3; opacity: 0.55; }
+
+.dr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px; }
+
+.dr-card {
+  background: #1a1610; border-radius: 14px; padding: 34px 28px 28px;
+  border: 1px solid #c9a84c15; cursor: pointer; position: relative; overflow: hidden;
+  transition: all 0.25s ease; animation: fadeUp 0.4s ease both;
+}
+.dr-card:hover {
+  transform: translateY(-4px); border-color: #c9a84c !important;
+  box-shadow: 0 16px 48px #00000070, 0 0 0 1px #c9a84c33;
+}
+.dr-card-title { font-size: 26px; font-weight: 700; color: #c9a84c; line-height: 1.7; margin-bottom: 8px; }
+.dr-card-meta { font-family: 'Cinzel', serif !important; font-size: 11px; letter-spacing: 0.14em; color: #8a6f35; margin-bottom: 22px; }
+.dr-card-preview { font-size: 15px; line-height: 2.2; color: #8a6f35; border-top: 1px solid #c9a84c15; padding-top: 18px; }
+.dr-diamond { margin: 0 14px; opacity: 0.25; font-size: 10px; }
+.dr-ornament { position: absolute; bottom: 14px; left: 16px; font-size: 20px; color: #c9a84c; opacity: 0.08; }
+
+/* ── READING ── */
+.dr-nav {
+  position: fixed; top: 50%; transform: translateY(-50%); z-index: 40;
+  width: 46px; height: 46px; border-radius: 50%; cursor: pointer;
+  background: #1a1610; color: #c9a84c; border: 1px solid #c9a84c22;
+  font-size: 18px; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.dr-nav:hover { background: #c9a84c; color: #0d0b08; }
+.dr-nav-r { right: 24px; }
+.dr-nav-l { left: 24px; }
+
+.dr-poem { max-width: 760px; margin: 0 auto; padding: 60px 24px 120px; }
+.dr-poem.in { animation: poemIn 0.3s ease both; }
+.dr-poem.out { animation: poemOut 0.2s ease forwards; }
+
+.dr-poem-header { text-align: center; margin-bottom: 52px; }
+.dr-poem-title { font-size: 34px; font-weight: 700; color: #c9a84c; line-height: 1.5; margin-bottom: 14px; }
+.dr-poem-meta { font-family: 'Cinzel', serif !important; font-size: 12px; letter-spacing: 0.18em; color: #8a6f35; }
+
+.dr-verse {
+  display: grid; grid-template-columns: 1fr 1fr; padding: 16px 20px;
+  border-radius: 8px; transition: background 0.3s ease; position: relative;
+  animation: fadeUp 0.4s ease both;
+}
+.dr-verse.static { animation: none; }
+.dr-verse:hover { background: #c9a84c12; }
+
+.dr-vnum {
+  position: absolute; right: -36px; top: 50%; transform: translateY(-50%);
+  font-size: 13px; color: #8a6f35; opacity: 0.25;
+}
+
+.dr-sadr {
+  text-align: right; line-height: 2.4; letter-spacing: 0.02em; color: #e8d5a3;
+  padding-left: 20px;
+}
+.dr-ajuz {
+  text-align: left; line-height: 2.4; letter-spacing: 0.02em; color: #e8d5a3;
+  transform: translateY(7px); border-right: 1px solid #c9a84c18; padding-right: 20px;
+}
+
+.dr-star { text-align: center; padding: 18px 0; color: #8a6f35; opacity: 0.35; font-size: 16px; letter-spacing: 0.3em; }
+
+.dr-dots { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; z-index: 40; }
+.dr-dot {
+  width: 9px; height: 9px; border-radius: 50%; border: none; cursor: pointer; padding: 0;
+  background: #8a6f35; opacity: 0.3; transition: all 0.3s;
+}
+.dr-dot.active { background: #c9a84c; opacity: 1; transform: scale(1.3); }
+
+/* ── MODAL ── */
+.dr-modal {
+  position: fixed; inset: 0; z-index: 200; background: #0d0b08f2; backdrop-filter: blur(10px);
+  overflow-y: auto; animation: modalIn 0.3s ease both;
+}
+.dr-modal-close {
+  position: sticky; top: 24px; float: left; margin-left: 28px; z-index: 210;
+  width: 42px; height: 42px; border-radius: 50%; cursor: pointer;
+  background: #1a1610; color: #c9a84c; border: 1px solid #c9a84c22;
+  font-size: 18px; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.dr-modal-close:hover { background: #c9a84c; color: #0d0b08; }
+.dr-modal-inner { max-width: 760px; margin: 0 auto; padding: 60px 24px 80px; }
+
+.dr-poem-divider { display: flex; align-items: center; gap: 20px; padding: 44px 0; color: #c9a84c; opacity: 0.4; font-size: 14px; }
+.dr-line { flex: 1; height: 1px; background: linear-gradient(to right, transparent, #c9a84c44, transparent); }
+
+/* ── SCROLLBAR ── */
+.dr::-webkit-scrollbar { width: 5px; }
+.dr::-webkit-scrollbar-track { background: transparent; }
+.dr::-webkit-scrollbar-thumb { background: #8a6f3544; border-radius: 3px; }
+
+/* ── MOBILE ── */
+@media (max-width: 640px) {
+  .dr-grid { grid-template-columns: 1fr; }
+  .dr-verse { grid-template-columns: 1fr; gap: 0; }
+  .dr-ajuz { transform: none; border-right: none; padding-right: 0; padding-top: 4px; border-top: 1px solid #c9a84c12; text-align: right; }
+  .dr-sadr { padding-left: 0; }
+  .dr-vnum { display: none; }
+  .dr-nav { display: none; }
+  .dr-bar { padding: 12px 16px; }
+  .dr-content { padding: 32px 16px 60px; }
+  .dr-poem { padding: 40px 16px 100px; }
+  .dr-controls { gap: 6px; }
+  .dr-pill { padding: 4px 12px; font-size: 13px; }
+}
+
+/* ── KEYFRAMES ── */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes poemIn { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes poemOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-22px); } }
+@keyframes modalIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+`
