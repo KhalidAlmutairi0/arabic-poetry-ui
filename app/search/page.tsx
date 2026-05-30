@@ -275,7 +275,9 @@ function SearchPageContent() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-lg group-hover:text-accent transition-colors line-clamp-1">
-                        {group.poem_title_ar || "قصيدة"}
+                        {group.poem_title_ar && group.poem_title_ar !== "قصيدة"
+                          ? group.poem_title_ar
+                          : group.verses[0].hemistich_1}
                       </h3>
                       <p className="text-sm text-muted-foreground mt-0.5">
                         {group.poet_name_ar}
