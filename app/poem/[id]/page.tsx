@@ -10,7 +10,6 @@ import {
   ChevronDown,
   ChevronUp,
   Sparkles,
-  Check,
   Loader2,
 } from "lucide-react"
 import { getPoem, formatEra, type Poem } from "@/lib/api"
@@ -20,7 +19,6 @@ export default function PoemPage({ params }: { params: Promise<{ id: string }> }
   const { id: slug } = use(params)
   const [poem, setPoem] = useState<Poem | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [readVerses, setReadVerses] = useState<string[]>([])
   const [expandedVerse, setExpandedVerse] = useState<string | null>(null)
   const [showPoemInfo, setShowPoemInfo] = useState(false)
 
@@ -65,16 +63,6 @@ export default function PoemPage({ params }: { params: Promise<{ id: string }> }
     )
   }
 
-  const progress = poem.verses.length > 0
-    ? (readVerses.length / poem.verses.length) * 100
-    : 0
-
-  const toggleVerseRead = (verseId: string) => {
-    setReadVerses((prev) =>
-      prev.includes(verseId) ? prev.filter((id) => id !== verseId) : [...prev, verseId]
-    )
-  }
-
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -94,10 +82,9 @@ export default function PoemPage({ params }: { params: Promise<{ id: string }> }
                 </Link>
               </div>
               <div className="flex items-center gap-3 shrink-0">
-                <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
-                  <span>{readVerses.length}/{poem.verses.length}</span>
-                  <span>بيت</span>
-                </div>
+                <span className="hidden sm:inline text-sm text-muted-foreground">
+                  {poem.verses.length} بيتاً
+                </span>
                 <button
                   onClick={() => {
                     const url = window.location.href
@@ -113,13 +100,6 @@ export default function PoemPage({ params }: { params: Promise<{ id: string }> }
                   <Share2 className="w-5 h-5" />
                 </button>
               </div>
-            </div>
-            {/* Progress Bar */}
-            <div className="mt-3 h-1 bg-secondary rounded-full overflow-hidden">
-              <div
-                className="h-full bg-accent transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              />
             </div>
           </div>
         </div>
@@ -181,68 +161,52 @@ export default function PoemPage({ params }: { params: Promise<{ id: string }> }
             </div>
 
             {/* Verses */}
-            <div className="space-y-2">
+            <div className="bg-card rounded-2xl border border-border/50 overflow-hidden">
               {poem.verses
                 .sort((a, b) => a.position - b.position)
                 .map((verse, index) => (
                   <div
                     key={verse.id}
-                    className={`group relative transition-all duration-300 ${
-                      expandedVerse === verse.id ? "mb-4" : ""
-                    }`}
+                    className="group"
                   >
                     <div
-                      className={`relative p-6 lg:p-8 rounded-xl border transition-all cursor-pointer ${
-                        readVerses.includes(verse.id)
-                          ? "bg-card border-border/50"
-                          : "bg-secondary/20 border-transparent"
-                      } ${
-                        expandedVerse === verse.id
-                          ? "border-accent shadow-lg shadow-accent/5"
-                          : "hover:border-border/50 hover:shadow-md"
-                      }`}
+                      className={`relative py-6 px-6 lg:px-10 transition-all cursor-pointer hover:bg-secondary/30 ${
+                        expandedVerse === verse.id ? "bg-secondary/20" : ""
+                      } ${index > 0 ? "border-t border-border/30" : ""}`}
                       onClick={() =>
                         setExpandedVerse(expandedVerse === verse.id ? null : verse.id)
                       }
+                      dir="rtl"
                     >
                       {/* Verse Number */}
-                      <div className="absolute top-4 right-4">
-                        <span className="text-sm text-muted-foreground font-medium">
-                          {index + 1}
-                        </span>
-                      </div>
+                      <span className="absolute top-3 right-3 text-xs text-muted-foreground/40 font-medium">
+                        {index + 1}
+                      </span>
 
-                      {/* Read Toggle */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          toggleVerseRead(verse.id)
-                        }}
-                        className={`absolute top-4 left-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
-                          readVerses.includes(verse.id)
-                            ? "bg-accent border-accent text-white"
-                            : "border-border hover:border-accent"
-                        }`}
-                      >
-                        {readVerses.includes(verse.id) && <Check className="w-3 h-3" />}
-                      </button>
-
-                      {/* Verse Content */}
-                      <div className="text-center pt-4">
-                        <div className="font-serif text-xl lg:text-2xl leading-loose">
-                          <p className="text-verse mb-2">{verse.hemistich_1}</p>
-                          <p className="text-muted-foreground">{verse.hemistich_2}</p>
-                        </div>
-                        {verse.is_famous && (
-                          <span className="mt-2 inline-block px-2 py-0.5 bg-accent/10 text-accent rounded-full text-xs">
-                            مشهور
-                          </span>
+                      {/* Verse — both hemistiches on one line */}
+                      <div className="text-center font-serif text-xl lg:text-2xl leading-[2.4]">
+                        {verse.hemistich_1 && verse.hemistich_2 ? (
+                          <div className="flex justify-center items-baseline gap-6 lg:gap-10 flex-wrap">
+                            <span className="text-foreground">{verse.hemistich_1}</span>
+                            <span className="text-muted-foreground/30 text-sm hidden sm:inline">◆</span>
+                            <span className="text-foreground/70">{verse.hemistich_2}</span>
+                          </div>
+                        ) : (
+                          <span className="text-foreground">{verse.hemistich_1 || verse.full_verse}</span>
                         )}
                       </div>
 
+                      {verse.is_famous && (
+                        <div className="flex justify-center mt-2">
+                          <span className="px-2 py-0.5 bg-accent/10 text-accent rounded-full text-xs">
+                            مشهور
+                          </span>
+                        </div>
+                      )}
+
                       {/* Expanded Actions */}
                       {expandedVerse === verse.id && (
-                        <div className="mt-6 pt-6 border-t border-border/50 flex items-center justify-center gap-4">
+                        <div className="mt-5 pt-4 border-t border-border/30 flex items-center justify-center gap-3">
                           <Link
                             href={`/verse/${verse.id}`}
                             className="flex items-center gap-2 px-4 py-2 bg-accent text-accent-foreground rounded-lg text-sm font-medium hover:bg-accent/90 transition-colors"
@@ -251,9 +215,16 @@ export default function PoemPage({ params }: { params: Promise<{ id: string }> }
                             <Sparkles className="w-4 h-4" />
                             الشرح والتحليل
                           </Link>
-                          <button className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-lg text-sm font-medium hover:bg-secondary/80 transition-colors">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              const text = `${verse.hemistich_1}  ${verse.hemistich_2}`
+                              navigator.clipboard?.writeText(text)
+                            }}
+                            className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-lg text-sm font-medium hover:bg-secondary/80 transition-colors"
+                          >
                             <Share2 className="w-4 h-4" />
-                            مشاركة
+                            نسخ
                           </button>
                         </div>
                       )}
