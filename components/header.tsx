@@ -40,11 +40,17 @@ export function Header() {
             >
               استكشف
             </Link>
-            <Link 
-              href="/categories" 
+            <Link
+              href="/categories"
               className="text-muted-foreground hover:text-foreground transition-colors duration-200 font-medium"
             >
               التصنيفات
+            </Link>
+            <Link
+              href="/reader"
+              className="text-muted-foreground hover:text-foreground transition-colors duration-200 font-medium"
+            >
+              ديوان
             </Link>
           </nav>
 
