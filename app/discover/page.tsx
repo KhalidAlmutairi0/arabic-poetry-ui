@@ -187,7 +187,7 @@ export default function DiscoverPage() {
               {collections.map((category) => (
                 <Link
                   key={category.id}
-                  href={`/category/${category.id}`}
+                  href={`/search?q=${encodeURIComponent(category.name)}`}
                   className="group flex flex-col items-center p-6 bg-card rounded-xl border border-border/50 hover:border-border hover:shadow-md transition-all"
                 >
                   <div className={`p-3 rounded-xl ${category.color} mb-3 transition-transform group-hover:scale-110`}>
@@ -256,7 +256,7 @@ export default function DiscoverPage() {
               {trendingToday.map((verse, index) => (
                 <Link
                   key={verse.id}
-                  href={`/verse/${verse.id}`}
+                  href={`/search?q=${encodeURIComponent(verse.verse)}`}
                   className="group p-6 bg-card rounded-xl border border-border/50 hover:border-border hover:shadow-md transition-all"
                 >
                   <div className="flex items-start gap-4">

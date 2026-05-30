@@ -29,25 +29,25 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Features */}
+          {/* Eras */}
           <div>
-            <h4 className="font-semibold mb-4">المميزات</h4>
+            <h4 className="font-semibold mb-4">العصور الشعرية</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><Link href="/ai" className="hover:text-foreground transition-colors">الشرح بالذكاء الاصطناعي</Link></li>
-              <li><Link href="/meanings" className="hover:text-foreground transition-colors">معاني الكلمات</Link></li>
-              <li><Link href="/analysis" className="hover:text-foreground transition-colors">التحليل الأدبي</Link></li>
-              <li><Link href="/collections" className="hover:text-foreground transition-colors">المجموعات</Link></li>
+              <li><Link href="/poets?era=pre_islamic" className="hover:text-foreground transition-colors">الشعر الجاهلي</Link></li>
+              <li><Link href="/poets?era=abbasid" className="hover:text-foreground transition-colors">الشعر العباسي</Link></li>
+              <li><Link href="/poets?era=andalusian" className="hover:text-foreground transition-colors">الشعر الأندلسي</Link></li>
+              <li><Link href="/poets?era=modern" className="hover:text-foreground transition-colors">الشعر الحديث</Link></li>
             </ul>
           </div>
 
-          {/* About */}
+          {/* More */}
           <div>
-            <h4 className="font-semibold mb-4">عن ديوان</h4>
+            <h4 className="font-semibold mb-4">المزيد</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><Link href="/about" className="hover:text-foreground transition-colors">من نحن</Link></li>
-              <li><Link href="/contact" className="hover:text-foreground transition-colors">تواصل معنا</Link></li>
-              <li><Link href="/privacy" className="hover:text-foreground transition-colors">الخصوصية</Link></li>
-              <li><Link href="/terms" className="hover:text-foreground transition-colors">الشروط</Link></li>
+              <li><Link href="/search?q=%D8%AD%D9%83%D9%85%D8%A9" className="hover:text-foreground transition-colors">أبيات حكمة</Link></li>
+              <li><Link href="/search?q=%D8%BA%D8%B2%D9%84" className="hover:text-foreground transition-colors">شعر الغزل</Link></li>
+              <li><Link href="/search?q=%D9%81%D8%AE%D8%B1" className="hover:text-foreground transition-colors">شعر الفخر</Link></li>
+              <li><Link href="/search?q=%D8%B1%D8%AB%D8%A7%D8%A1" className="hover:text-foreground transition-colors">شعر الرثاء</Link></li>
             </ul>
           </div>
         </div>

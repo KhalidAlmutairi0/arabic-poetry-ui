@@ -9,12 +9,10 @@ import {
   ArrowRight,
   Bookmark,
   Share2,
-  Heart,
   ChevronDown,
   ChevronUp,
   Sparkles,
   BookOpen,
-  Lightbulb,
   Loader2,
 } from "lucide-react"
 import { getVerse, getExplanationStreamUrl, type Verse, type VerseExplanation } from "@/lib/api"
@@ -203,7 +201,6 @@ export default function VersePage({ params }: { params: Promise<{ id: string }> 
   const { id } = use(params)
   const [verse, setVerse] = useState<Verse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [isLiked, setIsLiked] = useState(false)
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [showWordMeanings, setShowWordMeanings] = useState(false)
 
@@ -318,18 +315,12 @@ export default function VersePage({ params }: { params: Promise<{ id: string }> 
               {/* Actions */}
               <div className="flex items-center justify-center gap-4 mt-8">
                 <button
-                  onClick={() => setIsLiked(!isLiked)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-colors ${
-                    isLiked
-                      ? "bg-rose-500/10 text-rose-500"
-                      : "bg-secondary/50 hover:bg-secondary text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
-                  <span className="text-sm font-medium">إعجاب</span>
-                </button>
-                <button
-                  onClick={() => setIsBookmarked(!isBookmarked)}
+                  onClick={() => {
+                    const text = `${verse.hemistich_1}  ${verse.hemistich_2}\n— ${verse.poet_name_ar}`
+                    navigator.clipboard?.writeText(text)
+                    setIsBookmarked(true)
+                    setTimeout(() => setIsBookmarked(false), 2000)
+                  }}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-colors ${
                     isBookmarked
                       ? "bg-accent/10 text-accent"
@@ -337,9 +328,20 @@ export default function VersePage({ params }: { params: Promise<{ id: string }> 
                   }`}
                 >
                   <Bookmark className={`w-5 h-5 ${isBookmarked ? "fill-current" : ""}`} />
-                  <span className="text-sm font-medium">حفظ</span>
+                  <span className="text-sm font-medium">{isBookmarked ? "تم النسخ" : "نسخ البيت"}</span>
                 </button>
-                <button className="flex items-center gap-2 px-4 py-2.5 bg-secondary/50 hover:bg-secondary rounded-xl text-muted-foreground hover:text-foreground transition-colors">
+                <button
+                  onClick={() => {
+                    const text = `${verse.hemistich_1}  ${verse.hemistich_2}\n— ${verse.poet_name_ar}`
+                    const url = window.location.href
+                    if (navigator.share) {
+                      navigator.share({ text, url })
+                    } else {
+                      navigator.clipboard?.writeText(`${text}\n${url}`)
+                    }
+                  }}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-secondary/50 hover:bg-secondary rounded-xl text-muted-foreground hover:text-foreground transition-colors"
+                >
                   <Share2 className="w-5 h-5" />
                   <span className="text-sm font-medium">مشاركة</span>
                 </button>

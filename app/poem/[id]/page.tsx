@@ -6,7 +6,6 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import Link from "next/link"
 import {
-  Bookmark,
   Share2,
   ChevronDown,
   ChevronUp,
@@ -21,7 +20,6 @@ export default function PoemPage({ params }: { params: Promise<{ id: string }> }
   const { id: slug } = use(params)
   const [poem, setPoem] = useState<Poem | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [isBookmarked, setIsBookmarked] = useState(false)
   const [readVerses, setReadVerses] = useState<string[]>([])
   const [expandedVerse, setExpandedVerse] = useState<string | null>(null)
   const [showPoemInfo, setShowPoemInfo] = useState(false)
@@ -101,16 +99,17 @@ export default function PoemPage({ params }: { params: Promise<{ id: string }> }
                   <span>بيت</span>
                 </div>
                 <button
-                  onClick={() => setIsBookmarked(!isBookmarked)}
-                  className={`p-2 rounded-lg transition-colors ${
-                    isBookmarked
-                      ? "bg-accent/10 text-accent"
-                      : "hover:bg-secondary text-muted-foreground hover:text-foreground"
-                  }`}
+                  onClick={() => {
+                    const url = window.location.href
+                    if (navigator.share) {
+                      navigator.share({ title: poem.title_ar, text: `${poem.title_ar} — ${poem.poet.name_ar}`, url })
+                    } else {
+                      navigator.clipboard?.writeText(url)
+                    }
+                  }}
+                  className="p-2 hover:bg-secondary rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+                  title="مشاركة"
                 >
-                  <Bookmark className={`w-5 h-5 ${isBookmarked ? "fill-current" : ""}`} />
-                </button>
-                <button className="p-2 hover:bg-secondary rounded-lg text-muted-foreground hover:text-foreground transition-colors">
                   <Share2 className="w-5 h-5" />
                 </button>
               </div>
