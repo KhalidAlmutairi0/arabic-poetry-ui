@@ -4,9 +4,35 @@ import { useState, useEffect, useCallback, useRef, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { Search, Loader2, SlidersHorizontal, TrendingUp } from "lucide-react"
+import { Search, Loader2, SlidersHorizontal, TrendingUp, BookOpen } from "lucide-react"
 import Link from "next/link"
 import { searchPoetry, type SearchHit } from "@/lib/api"
+
+interface PoemGroup {
+  poem_slug: string
+  poem_title_ar: string
+  poet_name_ar: string
+  poet_slug: string
+  verses: SearchHit[]
+}
+
+function groupByPoem(hits: SearchHit[]): PoemGroup[] {
+  const map = new Map<string, PoemGroup>()
+  for (const hit of hits) {
+    const key = hit.poem_slug || hit.id
+    if (!map.has(key)) {
+      map.set(key, {
+        poem_slug: hit.poem_slug,
+        poem_title_ar: hit.poem_title_ar,
+        poet_name_ar: hit.poet_name_ar,
+        poet_slug: hit.poet_slug,
+        verses: [],
+      })
+    }
+    map.get(key)!.verses.push(hit)
+  }
+  return Array.from(map.values())
+}
 
 const ERAS = [
   { value: "", label: "جميع العصور" },
@@ -233,46 +259,48 @@ function SearchPageContent() {
             </div>
           )}
 
-          {/* Results */}
+          {/* Results — grouped by poem */}
           {results.length > 0 && (
             <div className="space-y-4">
-              {results.map((hit) => (
-                /* Outer: div not Link — avoids nested <a> with poet link inside */
-                <div
-                  key={`${hit.id}-${hit.hemistich_1.slice(0, 10)}`}
-                  role="link"
-                  tabIndex={0}
-                  onClick={() => router.push(`/verse/${hit.id}`)}
-                  onKeyDown={(e) => e.key === "Enter" && router.push(`/verse/${hit.id}`)}
-                  className="group block p-6 bg-card rounded-xl border border-border/50 hover:border-border hover:shadow-md transition-all duration-300 cursor-pointer"
+              {groupByPoem(results).map((group) => (
+                <Link
+                  key={group.poem_slug || group.verses[0].id}
+                  href={group.poem_slug ? `/poem/${group.poem_slug}` : `/verse/${group.verses[0].id}`}
+                  className="group block p-6 bg-card rounded-xl border border-border/50 hover:border-border hover:shadow-md transition-all duration-300"
                 >
-                  <div className="font-serif text-lg lg:text-xl leading-loose mb-4">
-                    <p className="text-verse">{hit.hemistich_1}</p>
-                    <p className="text-muted-foreground">{hit.hemistich_2}</p>
+                  {/* Poem title + poet */}
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="p-2.5 bg-secondary/50 rounded-xl shrink-0 mt-0.5">
+                      <BookOpen className="w-5 h-5 text-muted-foreground group-hover:text-accent transition-colors" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-lg group-hover:text-accent transition-colors line-clamp-1">
+                        {group.poem_title_ar || "قصيدة"}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-0.5">
+                        {group.poet_name_ar}
+                        {group.verses.length > 1 && (
+                          <span className="mr-2">· {group.verses.length} أبيات مطابقة</span>
+                        )}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex flex-wrap items-center gap-3 text-sm">
-                    <Link
-                      href={`/poet/${hit.poet_slug}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="font-medium hover:text-accent transition-colors"
-                    >
-                      {hit.poet_name_ar}
-                    </Link>
-                    {hit.poem_title_ar && (
-                      <>
-                        <span className="text-muted-foreground">·</span>
-                        <span className="text-muted-foreground line-clamp-1">
-                          {hit.poem_title_ar}
-                        </span>
-                      </>
-                    )}
-                    {hit.is_famous && (
-                      <span className="mr-auto px-2 py-0.5 bg-accent/10 text-accent rounded-full text-xs">
-                        مشهور
-                      </span>
+
+                  {/* Preview: first matching verse */}
+                  <div className="font-serif text-base lg:text-lg leading-loose pr-14 text-muted-foreground">
+                    <p>{group.verses[0].hemistich_1}</p>
+                    {group.verses[0].hemistich_2 && (
+                      <p>{group.verses[0].hemistich_2}</p>
                     )}
                   </div>
-                </div>
+
+                  {/* Show second verse preview if multiple matches */}
+                  {group.verses.length > 1 && (
+                    <div className="font-serif text-sm leading-loose pr-14 text-muted-foreground/60 mt-1">
+                      <p>{group.verses[1].hemistich_1}</p>
+                    </div>
+                  )}
+                </Link>
               ))}
 
               {/* Load more */}
