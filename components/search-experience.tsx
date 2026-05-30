@@ -153,11 +153,10 @@ export function SearchExperience({ initialQuery }: { initialQuery: string }) {
       <p className="mt-6 text-sm text-text-muted">
         {query ? (
           <>
-            {toArabicNumerals(totalMatches)} نتيجة في {toArabicNumerals(groups.length)} قصيدة
-            {' '}لـ «<span className="text-gold-light">{query}</span>»
+            {toArabicNumerals(totalMatches)} نتيجة لـ «<span className="text-gold-light">{query}</span>»
           </>
         ) : (
-          <>اكتب كلمةً للبحث، أو تصفّح {toArabicNumerals(totalMatches)} بيتٍ متاح</>
+          <>ابحث عن بيتٍ أو شاعرٍ أو معنى في ديوان الشعر العربي</>
         )}
       </p>
 
