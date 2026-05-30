@@ -1,13 +1,27 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { CATEGORIES, formatCount } from '@/lib/data'
+import { getCategories } from '@/lib/api'
+import { CATEGORIES as FALLBACK_CATEGORIES, formatCount } from '@/lib/data'
+
+export const revalidate = 86400
 
 export const metadata: Metadata = {
   title: 'التصنيفات · قافية',
   description: 'تصفّح أغراض الشعر العربي: حكمة، غزل، فخر، رثاء وغيرها.',
 }
 
-export default function CategoriesPage() {
+export default async function CategoriesPage() {
+  const apiCategories = await getCategories()
+  const categories = apiCategories && apiCategories.length > 0
+    ? apiCategories.map((c: any) => ({
+        id: c.id,
+        name_ar: c.name_ar,
+        slug: c.slug,
+        count: c.poem_count,
+        desc: c.description_ar || '',
+      }))
+    : FALLBACK_CATEGORIES
+
   return (
     <div className="animate-fade-up mx-auto max-w-[1100px] px-4 py-10 sm:px-6">
       <header className="pt-4">
@@ -18,7 +32,7 @@ export default function CategoriesPage() {
       </header>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {CATEGORIES.map((c) => (
+        {categories.map((c: any) => (
           <Link
             key={c.id}
             href={`/search?q=${encodeURIComponent(c.name_ar)}`}
@@ -27,7 +41,7 @@ export default function CategoriesPage() {
             <h3 className="font-serif text-2xl text-text-primary transition-colors group-hover:text-gold-light">
               {c.name_ar}
             </h3>
-            <p className="mt-2 text-sm leading-relaxed text-text-secondary">{c.desc}</p>
+            {c.desc && <p className="mt-2 text-sm leading-relaxed text-text-secondary">{c.desc}</p>}
             <p className="mt-4 text-xs text-text-muted">{formatCount(c.count)} بيت</p>
           </Link>
         ))}
