@@ -1,151 +1,151 @@
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { HeroSearch } from "@/components/hero-search"
-import { FeaturedPoets } from "@/components/featured-poets"
-import { TrendingVerses } from "@/components/trending-verses"
-import { DailyVerse } from "@/components/daily-verse"
-import { Categories } from "@/components/categories"
-import { Sparkles, Search, BookOpen, Brain } from "lucide-react"
-import { getPoets } from "@/lib/api"
+import Link from 'next/link'
+import { Search, ArrowLeft, Star } from 'lucide-react'
+import { getPoets, getFamousVerses, getCategories } from '@/lib/api'
+import { ERA_ORDER, ERA_LABELS, eraLabel, formatCount } from '@/lib/data'
+import { Pill } from '@/components/pill'
+import { Ornament } from '@/components/ornament'
 
 export const revalidate = 60
 
-export default async function Home() {
-  const poetsData = await getPoets({ limit: 1 })
-  const totalPoets = poetsData?.total ?? 0
-  const hasStats = totalPoets > 0
+export default async function HomePage() {
+  const [poetsData, famousData, categoriesData] = await Promise.all([
+    getPoets({ limit: 4 }),
+    getFamousVerses(1),
+    getCategories(),
+  ])
+
+  const poets = poetsData?.items || []
+  const totalPoets = poetsData?.total || 0
+  const featuredVerse = famousData?.[0] || null
+  const categories = (categoriesData || []).slice(0, 4)
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      
-      <main className="flex-1">
-        {/* Hero Section */}
-        <section className="relative py-20 lg:py-32 overflow-hidden">
-          {/* Background decoration */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
-            <div className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
+    <div className="animate-fade-up">
+      {/* Hero */}
+      <section className="mx-auto max-w-[900px] px-4 pt-20 text-center sm:px-6">
+        <span
+          className="font-logo text-6xl font-bold text-gold-primary sm:text-7xl"
+          style={{ textShadow: '0 0 40px rgba(200,164,85,0.2)' }}
+        >
+          قافية
+        </span>
+        <p className="mx-auto mt-6 max-w-xl text-balance font-serif text-xl leading-relaxed text-text-secondary sm:text-2xl">
+          ديوانُ الشعر العربي بين يديك — من الجاهليّةِ إلى اليوم.
+        </p>
+        {totalPoets > 0 && (
+          <p className="mx-auto mt-3 text-sm text-text-muted">
+            {formatCount(totalPoets)} شاعر · ١٠ عصور أدبية
+          </p>
+        )}
+
+        <Link
+          href="/search"
+          className="mx-auto mt-8 flex max-w-md items-center gap-3 rounded-2xl border border-border bg-surface px-5 py-4 text-right transition-all duration-200 hover:border-[var(--border-strong)] hover:bg-surface-elevated"
+        >
+          <Search className="size-5 shrink-0 text-gold-muted" />
+          <span className="flex-1 text-text-muted">ابحث عن بيتٍ أو شاعرٍ أو معنى…</span>
+          <ArrowLeft className="size-4 text-text-muted" />
+        </Link>
+      </section>
+
+      <div className="mx-auto my-16 max-w-[900px] px-6">
+        <Ornament />
+      </div>
+
+      {/* Featured verse */}
+      {featuredVerse && (
+        <section className="mx-auto max-w-[820px] px-4 sm:px-6">
+          <p className="mb-6 text-center text-sm font-medium text-gold-muted">بيتُ اليوم</p>
+          <Link
+            href={`/verse/${featuredVerse.id}`}
+            className="group block rounded-2xl border border-border bg-surface/60 px-6 py-12 text-center transition-all duration-200 hover:border-[var(--border-strong)] hover:bg-surface-elevated sm:px-12"
+          >
+            <p className="verse-text text-[length:clamp(1.4rem,4vw,2rem)] text-gold-light">
+              {featuredVerse.hemistich_1}
+            </p>
+            <p className="verse-text mt-2 text-[length:clamp(1.4rem,4vw,2rem)] text-gold-light opacity-80">
+              {featuredVerse.hemistich_2}
+            </p>
+            <p className="mt-6 font-serif text-base text-text-secondary transition-colors group-hover:text-gold-light">
+              — {featuredVerse.poet_name_ar}
+            </p>
+          </Link>
+        </section>
+      )}
+
+      {/* Browse by era */}
+      <section className="mx-auto mt-20 max-w-[1100px] px-4 sm:px-6">
+        <h2 className="mb-6 font-serif text-2xl text-gold-light">تصفّح حسب العصر</h2>
+        <div className="flex flex-wrap gap-3">
+          {ERA_ORDER.map((era) => (
+            <Pill key={era} href={`/poets?era=${era}`} variant="default" className="px-4 py-2 text-sm">
+              {ERA_LABELS[era]}
+            </Pill>
+          ))}
+        </div>
+      </section>
+
+      {/* Featured poets */}
+      {poets.length > 0 && (
+        <section className="mx-auto mt-20 max-w-[1100px] px-4 sm:px-6">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="font-serif text-2xl text-gold-light">شعراء مختارون</h2>
+            <Link href="/poets" className="text-sm text-text-secondary transition-colors hover:text-gold-light">
+              كل الشعراء
+            </Link>
           </div>
-
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <div className="text-center max-w-4xl mx-auto mb-12">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full text-sm text-accent font-medium mb-8">
-                <Sparkles className="w-4 h-4" />
-                <span>البحث الذكي بالذكاء الاصطناعي</span>
-              </div>
-
-              {/* Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-                ابحث في
-                <span className="block text-accent mt-2">الشعر العربي</span>
-              </h1>
-
-              {/* Subheadline */}
-              <p className="text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                ابحث في آلاف الأبيات والقصائد من أعظم شعراء العربية، 
-                مع شرح مدعوم بالذكاء الاصطناعي لفهم أعمق
-              </p>
-            </div>
-
-            {/* Search */}
-            <HeroSearch />
-
-            {/* Stats — only show if we have real data */}
-            {hasStats && (
-              <div className="flex flex-wrap justify-center gap-8 lg:gap-16 mt-16 pt-8 border-t border-border/50">
-                <div className="text-center">
-                  <p className="text-3xl lg:text-4xl font-bold text-foreground">
-                    {totalPoets.toLocaleString("ar-SA")}
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-1">شاعر</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-3xl lg:text-4xl font-bold text-foreground">١٠+</p>
-                  <p className="text-sm text-muted-foreground mt-1">عصور أدبية</p>
-                </div>
-              </div>
-            )}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {poets.map((poet: any) => (
+              <Link
+                key={poet.id}
+                href={`/poet/${poet.slug}`}
+                className="group flex flex-col items-center rounded-2xl border border-border bg-surface p-6 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--border-strong)] hover:bg-surface-elevated"
+              >
+                <span className="flex size-16 items-center justify-center rounded-full border border-[var(--border-strong)] bg-surface-elevated font-serif text-3xl text-gold-primary">
+                  {poet.name_ar.charAt(0)}
+                </span>
+                <h3 className="mt-4 font-serif text-xl text-text-primary transition-colors group-hover:text-gold-light">
+                  {poet.name_ar}
+                </h3>
+                <p className="mt-1 text-xs text-text-muted">{eraLabel(poet.era)}</p>
+                <p className="mt-2 text-xs text-text-secondary">
+                  {formatCount(poet.poem_count)} قصيدة
+                </p>
+              </Link>
+            ))}
           </div>
         </section>
+      )}
 
-        {/* Features Section */}
-        <section className="py-16 lg:py-24 border-y border-border/50">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
-              <div className="text-center p-6">
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-accent/10 mb-5">
-                  <Search className="w-6 h-6 text-accent" />
+      {/* Categories */}
+      {categories.length > 0 && (
+        <section className="mx-auto mt-20 max-w-[1100px] px-4 sm:px-6">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="font-serif text-2xl text-gold-light">أغراض الشعر</h2>
+            <Link href="/categories" className="text-sm text-text-secondary transition-colors hover:text-gold-light">
+              كل التصنيفات
+            </Link>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {categories.map((c: any) => (
+              <Link
+                key={c.id}
+                href={`/search?q=${encodeURIComponent(c.name_ar)}`}
+                className="group rounded-2xl border border-border bg-surface p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--border-strong)] hover:bg-surface-elevated"
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="font-serif text-xl text-text-primary transition-colors group-hover:text-gold-light">
+                    {c.name_ar}
+                  </h3>
+                  <Star className="size-4 text-gold-muted" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">بحث ذكي</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  ابحث بالمعنى أو بالكلمات، وستجد ما تبحث عنه في ثوانٍ
-                </p>
-              </div>
-              <div className="text-center p-6">
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-accent/10 mb-5">
-                  <Brain className="w-6 h-6 text-accent" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">شرح بالذكاء الاصطناعي</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  احصل على شرح مفصل وتحليل أدبي عميق لكل بيت شعري
-                </p>
-              </div>
-              <div className="text-center p-6">
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-accent/10 mb-5">
-                  <BookOpen className="w-6 h-6 text-accent" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">تجربة قراءة فاخرة</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  استمتع بقراءة هادئة مع تصميم مريح للعين وخطوط عربية أنيقة
-                </p>
-              </div>
-            </div>
+                {c.description_ar && <p className="mt-2 text-sm text-text-secondary">{c.description_ar}</p>}
+                <p className="mt-3 text-xs text-text-muted">{formatCount(c.poem_count)} بيت</p>
+              </Link>
+            ))}
           </div>
         </section>
-
-        {/* Featured Poets */}
-        <FeaturedPoets />
-
-        {/* Trending Verses */}
-        <TrendingVerses />
-
-        {/* Daily Verse */}
-        <DailyVerse />
-
-        {/* Categories */}
-        <Categories />
-
-        {/* CTA Section */}
-        <section className="py-20 lg:py-28">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl mx-auto text-center">
-              <h2 className="text-3xl lg:text-4xl font-bold mb-6">
-                ابدأ رحلتك في عالم الشعر
-              </h2>
-              <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-                انضم إلى آلاف المهتمين بالشعر العربي واستكشف كنوز الأدب العربي
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a 
-                  href="/search" 
-                  className="px-8 py-4 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors"
-                >
-                  ابدأ البحث الآن
-                </a>
-                <a 
-                  href="/discover" 
-                  className="px-8 py-4 bg-secondary text-secondary-foreground rounded-xl font-medium hover:bg-secondary/80 transition-colors"
-                >
-                  استكشف المجموعات
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <Footer />
+      )}
     </div>
   )
 }

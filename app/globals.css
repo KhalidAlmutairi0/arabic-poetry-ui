@@ -3,107 +3,71 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Premium Arabic Poetry Platform - Manuscript Inspired Palette */
+/* ===== قافية — Warm dark editorial theme ===== */
 :root {
-  /* Light Mode - Warm parchment & ink inspired */
-  --background: oklch(0.975 0.005 75);      /* Warm parchment cream */
-  --foreground: oklch(0.22 0.02 45);        /* Deep ink brown-black */
-  
-  --card: oklch(0.985 0.003 75);            /* Lighter parchment */
-  --card-foreground: oklch(0.22 0.02 45);
-  
-  --popover: oklch(0.99 0.002 75);
-  --popover-foreground: oklch(0.22 0.02 45);
-  
-  --primary: oklch(0.35 0.06 45);           /* Deep manuscript brown */
-  --primary-foreground: oklch(0.975 0.005 75);
-  
-  --secondary: oklch(0.94 0.01 75);         /* Soft sand */
-  --secondary-foreground: oklch(0.30 0.04 45);
-  
-  --muted: oklch(0.92 0.015 75);            /* Muted parchment */
-  --muted-foreground: oklch(0.45 0.03 45);  /* Faded ink */
-  
-  --accent: oklch(0.55 0.12 35);            /* Warm terracotta accent */
-  --accent-foreground: oklch(0.98 0.005 75);
-  
-  --destructive: oklch(0.55 0.2 25);
-  --destructive-foreground: oklch(0.98 0 0);
-  
-  --border: oklch(0.88 0.02 75);            /* Subtle warm border */
-  --input: oklch(0.92 0.01 75);
-  --ring: oklch(0.55 0.12 35);              /* Terracotta ring */
-  
-  /* Poetry specific tokens */
-  --verse: oklch(0.28 0.025 45);            /* Deep verse text */
-  --verse-highlight: oklch(0.92 0.04 55);   /* Gold highlight */
-  --poet-accent: oklch(0.45 0.08 180);      /* Teal for poets */
-  
-  --radius: 0.5rem;
-  
-  /* Sidebar */
-  --sidebar: oklch(0.965 0.008 75);
-  --sidebar-foreground: oklch(0.22 0.02 45);
-  --sidebar-primary: oklch(0.35 0.06 45);
-  --sidebar-primary-foreground: oklch(0.975 0.005 75);
-  --sidebar-accent: oklch(0.94 0.015 75);
-  --sidebar-accent-foreground: oklch(0.30 0.04 45);
-  --sidebar-border: oklch(0.90 0.015 75);
-  --sidebar-ring: oklch(0.55 0.12 35);
-}
+  --background: #0f0d0a;
+  --surface: #1a1714;
+  --surface-elevated: #242018;
+  --surface-hover: #2e2820;
 
-.dark {
-  /* Dark Mode - Warm cinematic night reading */
-  --background: oklch(0.16 0.015 45);       /* Warm charcoal, not pure black */
-  --foreground: oklch(0.92 0.01 75);        /* Warm off-white */
-  
-  --card: oklch(0.19 0.012 45);             /* Slightly lighter card */
-  --card-foreground: oklch(0.92 0.01 75);
-  
-  --popover: oklch(0.20 0.01 45);
-  --popover-foreground: oklch(0.92 0.01 75);
-  
-  --primary: oklch(0.88 0.03 55);           /* Warm gold primary */
-  --primary-foreground: oklch(0.16 0.015 45);
-  
-  --secondary: oklch(0.24 0.015 45);        /* Warm dark surface */
-  --secondary-foreground: oklch(0.88 0.02 75);
-  
-  --muted: oklch(0.26 0.012 45);
-  --muted-foreground: oklch(0.65 0.02 75);
-  
-  --accent: oklch(0.70 0.12 55);            /* Warm gold accent */
-  --accent-foreground: oklch(0.16 0.015 45);
-  
-  --destructive: oklch(0.45 0.18 25);
-  --destructive-foreground: oklch(0.92 0.01 75);
-  
-  --border: oklch(0.28 0.015 45);
-  --input: oklch(0.24 0.012 45);
-  --ring: oklch(0.70 0.12 55);
-  
-  /* Poetry specific tokens - dark mode */
-  --verse: oklch(0.94 0.01 75);
-  --verse-highlight: oklch(0.35 0.08 55);
-  --poet-accent: oklch(0.65 0.1 180);
-  
-  /* Sidebar - dark */
-  --sidebar: oklch(0.14 0.015 45);
-  --sidebar-foreground: oklch(0.92 0.01 75);
-  --sidebar-primary: oklch(0.88 0.03 55);
-  --sidebar-primary-foreground: oklch(0.16 0.015 45);
-  --sidebar-accent: oklch(0.22 0.012 45);
-  --sidebar-accent-foreground: oklch(0.88 0.02 75);
-  --sidebar-border: oklch(0.26 0.012 45);
-  --sidebar-ring: oklch(0.70 0.12 55);
+  --gold-primary: #c8a455;
+  --gold-light: #e8d5a3;
+  --gold-muted: #8a7340;
+  --gold-dim: #5c4d2a;
+
+  --border-subtle: rgba(200, 164, 85, 0.12);
+  --border-strong: rgba(200, 164, 85, 0.25);
+
+  --text-primary: #f2ede4;
+  --text-secondary: #a89880;
+  --text-muted: #6b5f50;
+
+  --danger: #c45c5c;
+  --success: #5ca86b;
+
+  --radius: 1rem;
+
+  /* shadcn semantic mappings (dark warm) */
+  --foreground: var(--text-primary);
+  --card: var(--surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--surface);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--gold-primary);
+  --primary-foreground: #1a1410;
+  --secondary: var(--surface-elevated);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--surface-elevated);
+  --muted-foreground: var(--text-secondary);
+  --accent: var(--surface-hover);
+  --accent-foreground: var(--gold-light);
+  --destructive: var(--danger);
+  --destructive-foreground: #fff;
+  --border: var(--border-subtle);
+  --input: var(--border-strong);
+  --ring: var(--gold-primary);
 }
 
 @theme inline {
-  --font-sans: var(--font-ibm-plex-sans-arabic), 'IBM Plex Sans Arabic', system-ui, sans-serif;
-  --font-serif: var(--font-noto-naskh-arabic), 'Noto Naskh Arabic', serif;
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback', monospace;
-  
+  --font-sans: var(--font-plex-arabic), 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font-serif: var(--font-naskh), 'Noto Naskh Arabic', 'Amiri', serif;
+  --font-logo: var(--font-aref), 'Aref Ruqaa', serif;
+
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-hover: var(--surface-hover);
+
+  --color-gold: var(--gold-primary);
+  --color-gold-primary: var(--gold-primary);
+  --color-gold-light: var(--gold-light);
+  --color-gold-muted: var(--gold-muted);
+  --color-gold-dim: var(--gold-dim);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
@@ -122,116 +86,87 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  
-  /* Poetry specific color tokens */
-  --color-verse: var(--verse);
-  --color-verse-highlight: var(--verse-highlight);
-  --color-poet-accent: var(--poet-accent);
-  
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 4px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
+  }
+  html {
+    @apply bg-background;
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: 'kern', 'liga';
   }
-  
-  /* Premium Arabic Typography Base */
-  html {
-    font-feature-settings: "ss01", "ss02", "cv01";
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-  
-  /* RTL Support */
-  [dir="rtl"] {
-    text-align: right;
-  }
-  
-  /* Arabic text specific styles */
-  .arabic-text {
-    font-feature-settings: "liga" 1, "calt" 1;
-    line-height: 2;
-  }
-  
-  /* Poetry verse styling */
-  .verse-text {
-    font-family: var(--font-serif);
-    font-size: 1.5rem;
-    line-height: 2.4;
-    letter-spacing: 0.02em;
-    color: var(--verse);
-  }
-  
-  /* Large display verse */
-  .verse-display {
-    font-family: var(--font-serif);
-    font-size: clamp(1.75rem, 4vw, 2.5rem);
-    line-height: 2.2;
-    font-weight: 500;
-  }
-  
-  /* Poet name styling */
-  .poet-name {
-    font-family: var(--font-sans);
-    font-weight: 600;
-    letter-spacing: 0.01em;
+  ::selection {
+    background: rgba(200, 164, 85, 0.25);
+    color: var(--text-primary);
   }
 }
 
-/* Smooth transitions for theme switching */
-* {
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+/* Verse typography helpers */
+.verse-text {
+  font-family: var(--font-serif);
+  line-height: 2.4;
+  letter-spacing: 0.02em;
 }
 
-/* Selection styling */
-::selection {
-  background-color: var(--verse-highlight);
-  color: var(--foreground);
+.font-logo {
+  font-family: var(--font-logo);
 }
 
-/* Scrollbar styling */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 300ms ease both;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.typing-cursor::after {
+  content: '▍';
+  margin-inline-start: 2px;
+  color: var(--gold-primary);
+  animation: blink 1s step-start infinite;
+}
+
+/* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
-
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--background);
 }
-
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 4px;
+  background: var(--gold-dim);
+  border-radius: 9999px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--muted-foreground);
-}
-
-/* Focus visible styling */
-:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
-}
-
-/* Smooth scroll */
-html {
-  scroll-behavior: smooth;
+  background: var(--gold-muted);
 }

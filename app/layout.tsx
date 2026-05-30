@@ -1,53 +1,38 @@
 import type { Metadata, Viewport } from 'next'
-import { IBM_Plex_Sans_Arabic, Noto_Naskh_Arabic } from 'next/font/google'
+import { Aref_Ruqaa, IBM_Plex_Sans_Arabic, Noto_Naskh_Arabic } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
-import { ThemeProvider } from '@/components/theme-provider'
+import { Toaster } from '@/components/ui/sonner'
+import { SiteHeader } from '@/components/site-header'
+import { SiteFooter } from '@/components/site-footer'
 import './globals.css'
 
-// Primary UI font - Modern, clean Arabic
-const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
+const arefRuqaa = Aref_Ruqaa({
   subsets: ['arabic'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-ibm-plex-sans-arabic',
-  display: 'swap',
+  weight: ['400', '700'],
+  variable: '--font-aref',
 })
 
-// Poetry display font - Traditional, elegant Naskh
-const notoNaskhArabic = Noto_Naskh_Arabic({
+const plexArabic = IBM_Plex_Sans_Arabic({
   subsets: ['arabic'],
   weight: ['400', '500', '600', '700'],
-  variable: '--font-noto-naskh-arabic',
-  display: 'swap',
+  variable: '--font-plex-arabic',
+})
+
+const notoNaskh = Noto_Naskh_Arabic({
+  subsets: ['arabic'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-naskh',
 })
 
 export const metadata: Metadata = {
-  title: 'ديوان | Diwan - Arabic Poetry Platform',
-  description: 'اكتشف جمال الشعر العربي - Discover the beauty of Arabic poetry. Search, explore, and understand verses from the greatest Arabic poets.',
-  keywords: ['Arabic poetry', 'الشعر العربي', 'ديوان', 'قصائد', 'شعراء', 'أدب عربي'],
-  authors: [{ name: 'Diwan' }],
-  creator: 'Diwan',
-  openGraph: {
-    title: 'ديوان | Diwan - Arabic Poetry Platform',
-    description: 'اكتشف جمال الشعر العربي - Discover the beauty of Arabic poetry',
-    type: 'website',
-    locale: 'ar_SA',
-    alternateLocale: 'en_US',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'ديوان | Diwan',
-    description: 'اكتشف جمال الشعر العربي',
-  },
+  title: 'قافية · ديوان الشعر العربي',
+  description:
+    'قافية — منصة الشعر العربي. أكثر من ١٤٣٬٠٠٠ قصيدة لـ ٦٬٨٠٠ شاعر عبر عشرة عصور أدبية، مع شروحات ذكية وبحث دلالي.',
+  generator: 'v0.app',
 }
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f7f5f0' },
-    { media: '(prefers-color-scheme: dark)', color: '#2a2520' },
-  ],
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 5,
+  themeColor: '#0F0D0A',
 }
 
 export default function RootLayout({
@@ -59,15 +44,14 @@ export default function RootLayout({
     <html
       lang="ar"
       dir="rtl"
-      className={`${ibmPlexSansArabic.variable} ${notoNaskhArabic.variable} bg-background`}
-      suppressHydrationWarning
-      style={{ scrollBehavior: "smooth" }}
+      className={`${arefRuqaa.variable} ${plexArabic.variable} ${notoNaskh.variable} bg-background`}
     >
-      <body className="font-sans antialiased min-h-screen">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          {children}
-        </ThemeProvider>
-        <Analytics />
+      <body className="font-sans antialiased text-foreground min-h-screen flex flex-col">
+        <SiteHeader />
+        <main className="flex-1">{children}</main>
+        <SiteFooter />
+        <Toaster position="top-center" theme="dark" />
+        {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
   )

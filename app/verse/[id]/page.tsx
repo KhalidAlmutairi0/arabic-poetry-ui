@@ -1,435 +1,141 @@
-"use client"
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
+import { BookOpen, ChevronLeft } from 'lucide-react'
+import { findVerse, getRelatedVerses, POEMS } from '@/lib/data'
+import { BreadcrumbNav } from '@/components/breadcrumb-nav'
+import { VerseExplanation } from '@/components/verse-explanation'
+import { VerseDetailActions } from '@/components/verse-detail-actions'
 
-import { useState, useEffect, useRef } from "react"
-import { use } from "react"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import Link from "next/link"
-import {
-  ArrowRight,
-  Bookmark,
-  Share2,
-  ChevronDown,
-  ChevronUp,
-  Sparkles,
-  BookOpen,
-  Loader2,
-} from "lucide-react"
-import { getVerse, getExplanationStreamUrl, type Verse, type VerseExplanation } from "@/lib/api"
-
-// ─── AI Explanation Panel ────────────────────────────────────────────────────
-
-type ExplainType = "simple" | "literary" | "linguistic"
-
-const TAB_LABELS: Record<ExplainType, string> = {
-  simple: "تبسيط",
-  literary: "تحليل أدبي",
-  linguistic: "تحليل لغوي",
+export function generateStaticParams() {
+  return POEMS.flatMap((p) => p.verses.map((v) => ({ id: v.id })))
 }
 
-function ExplanationPanel({
-  verseId,
-  cached,
+export async function generateMetadata({
+  params,
 }: {
-  verseId: string
-  cached: VerseExplanation[]
-}) {
-  const [tab, setTab] = useState<ExplainType>("simple")
-  const [texts, setTexts] = useState<Record<ExplainType, string>>({
-    simple: "",
-    literary: "",
-    linguistic: "",
-  })
-  const [loading, setLoading] = useState<Record<ExplainType, boolean>>({
-    simple: false,
-    literary: false,
-    linguistic: false,
-  })
-  const [started, setStarted] = useState<Record<ExplainType, boolean>>({
-    simple: false,
-    literary: false,
-    linguistic: false,
-  })
-  const abortRefs = useRef<Record<ExplainType, AbortController | null>>({
-    simple: null,
-    literary: null,
-    linguistic: null,
-  })
-
-  // Pre-fill from cached explanations
-  useEffect(() => {
-    if (!cached?.length) return
-    const newTexts: Record<ExplainType, string> = { ...texts }
-    const newStarted: Record<ExplainType, boolean> = { ...started }
-    for (const e of cached) {
-      const t = e.type as ExplainType
-      if (e.explanation_ar) {
-        newTexts[t] = e.explanation_ar
-        newStarted[t] = true
-      }
-    }
-    setTexts(newTexts)
-    setStarted(newStarted)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  const streamExplanation = async (type: ExplainType) => {
-    if (started[type] && texts[type]) return // Already have it
-
-    abortRefs.current[type]?.abort()
-    const ctrl = new AbortController()
-    abortRefs.current[type] = ctrl
-
-    setStarted((p) => ({ ...p, [type]: true }))
-    setLoading((p) => ({ ...p, [type]: true }))
-    setTexts((p) => ({ ...p, [type]: "" }))
-
-    try {
-      const url = getExplanationStreamUrl(verseId, type)
-      const res = await fetch(url, { signal: ctrl.signal })
-      if (!res.ok || !res.body) {
-        setTexts((p) => ({
-          ...p,
-          [type]: "حدث خطأ أثناء توليد الشرح. تأكد من تشغيل الخادم.",
-        }))
-        return
-      }
-
-      const reader = res.body.getReader()
-      const decoder = new TextDecoder()
-      let buffer = ""
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        buffer += decoder.decode(value, { stream: true })
-
-        // Parse SSE lines
-        const lines = buffer.split("\n")
-        buffer = lines.pop() ?? ""
-
-        for (const line of lines) {
-          if (!line.startsWith("data: ")) continue
-          const raw = line.slice(6).trim()
-          if (raw === "[DONE]") break
-          try {
-            const json = JSON.parse(raw)
-            if (json.text) {
-              setTexts((p) => ({ ...p, [type]: p[type] + json.text }))
-            } else if (json.full_text) {
-              setTexts((p) => ({ ...p, [type]: json.full_text }))
-            }
-          } catch {
-            /* ignore malformed chunks */
-          }
-        }
-      }
-    } catch (err: unknown) {
-      if (err instanceof Error && err.name !== "AbortError") {
-        setTexts((p) => ({
-          ...p,
-          [type]: "حدث خطأ أثناء الاتصال بالخادم.",
-        }))
-      }
-    } finally {
-      setLoading((p) => ({ ...p, [type]: false }))
-    }
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const found = findVerse(id)
+  if (!found) return { title: 'قافية' }
+  return {
+    title: `${found.poem.poet.name_ar} — بيت شعري · قافية`,
+    description: found.verse.full_verse,
   }
-
-  const handleTabClick = (type: ExplainType) => {
-    setTab(type)
-    streamExplanation(type)
-  }
-
-  return (
-    <section className="mb-10">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 rounded-lg bg-accent/10">
-          <Sparkles className="w-5 h-5 text-accent" />
-        </div>
-        <h2 className="text-xl font-semibold">الشرح بالذكاء الاصطناعي</h2>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-2 mb-4">
-        {(["simple", "literary", "linguistic"] as ExplainType[]).map((t) => (
-          <button
-            key={t}
-            onClick={() => handleTabClick(t)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-              tab === t
-                ? "bg-accent text-accent-foreground"
-                : "bg-secondary/50 text-muted-foreground hover:bg-secondary"
-            }`}
-          >
-            {TAB_LABELS[t]}
-          </button>
-        ))}
-      </div>
-
-      {/* Content */}
-      <div className="p-6 bg-card rounded-xl border border-border/50 min-h-[120px]">
-        {!started[tab] ? (
-          <button
-            onClick={() => streamExplanation(tab)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-accent/10 text-accent hover:bg-accent/20 rounded-lg text-sm font-medium transition-colors"
-          >
-            <Sparkles className="w-4 h-4" />
-            توليد الشرح
-          </button>
-        ) : loading[tab] && !texts[tab] ? (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Loader2 className="w-4 h-4 animate-spin" />
-            <span>جاري التوليد...</span>
-          </div>
-        ) : (
-          <p className="leading-loose text-base whitespace-pre-line">
-            {texts[tab]}
-            {loading[tab] && (
-              <span className="inline-block w-0.5 h-5 bg-accent ml-0.5 animate-pulse" />
-            )}
-          </p>
-        )}
-      </div>
-    </section>
-  )
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
+export default async function VersePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const found = findVerse(id)
+  if (!found) notFound()
+  const { verse, poem } = found
+  const related = getRelatedVerses(id, 4)
 
-export default function VersePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
-  const [verse, setVerse] = useState<Verse | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isBookmarked, setIsBookmarked] = useState(false)
-  const [showWordMeanings, setShowWordMeanings] = useState(false)
-
-  useEffect(() => {
-    const load = async () => {
-      setIsLoading(true)
-      const data = await getVerse(id)
-      setVerse(data)
-      setIsLoading(false)
-    }
-    load()
-  }, [id])
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1 flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-accent" />
-        </main>
-        <Footer />
-      </div>
-    )
+  const explanations = {
+    simple: `يقول الشاعر إنّ ما يبلغه المرءُ من عزائمَ ومآثرَ يكون على قدرِ همّته ومعدنه؛ فأصحابُ النفوس الكبيرة تأتيهم المكارمُ الكبيرة، وكلٌّ يُنال على قدرِ صاحبه. بيتٌ يلخّص فلسفةَ الطموح: المجدُ ثمرةُ الإرادة، ولا تُعطى المعالي إلّا لمن يستحقّها بعزمه.`,
+    literary: `يبني ${poem.poet.name_ar} المعنى على مقابلةٍ بديعةٍ بين «العزم/العزائم» و«الكرام/المكارم»، فيخلق توازنًا موسيقيًّا ودلاليًّا يرسّخ الحكمة في الذهن. أسلوب الشرط المضمر يمنح البيت طابعَ القانون الكوني الثابت، فيرتقي من تجربةٍ فرديةٍ إلى حقيقةٍ عامة. هذا التكثيفُ هو سرُّ خلودِ حِكَمِه.`,
+    linguistic: `«على قدرِ» جارٌّ ومجرور متعلّق بالفعل «تأتي»، و«أهلِ» مضافٌ إليه مجرور. الجناسُ الاشتقاقيّ بين «العزم» و«العزائم»، و«الكرام» و«المكارم» يضاعف الإيقاع. وردَ البيتُ على بحر الطويل، وهو أوسعُ البحور نَفَسًا، فناسبَ المعنى الفخريَّ الممتد.`,
   }
-
-  if (!verse) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1 flex flex-col items-center justify-center gap-4">
-          <p className="text-6xl">📜</p>
-          <h1 className="text-2xl font-semibold">البيت غير موجود</h1>
-          <p className="text-muted-foreground">
-            لم يتم العثور على البيت المطلوب أو الخادم غير متاح
-          </p>
-          <Link href="/" className="text-accent hover:underline">
-            العودة للرئيسية
-          </Link>
-        </main>
-        <Footer />
-      </div>
-    )
-  }
-
-  const wordMeanings =
-    verse.explanations
-      .filter((e) => e.type === "simple")
-      .flatMap((e) => e.difficult_words ?? []) ?? []
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
+    <div className="animate-fade-up mx-auto max-w-[820px] px-4 py-10 sm:px-6">
+      <BreadcrumbNav
+        items={[
+          { label: 'الرئيسية', href: '/' },
+          { label: poem.poet.name_ar, href: `/poet/${poem.poet.slug}` },
+          { label: poem.title_ar, href: `/poem/${poem.slug}` },
+          { label: 'بيت شعري' },
+        ]}
+      />
 
-      <main className="flex-1">
-        {/* Breadcrumb */}
-        <div className="border-b border-border/50">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <nav className="flex items-center gap-2 text-sm text-muted-foreground" dir="rtl">
-              <Link href="/" className="hover:text-foreground transition-colors">
-                الرئيسية
+      {/* Hero verse */}
+      <section className="relative mt-10 rounded-2xl border border-border bg-surface/60 px-6 py-14 text-center sm:px-12">
+        <span
+          className="pointer-events-none absolute right-5 top-3 select-none font-serif text-7xl leading-none text-gold-primary opacity-15"
+          aria-hidden="true"
+        >
+          ﴿
+        </span>
+        <span
+          className="pointer-events-none absolute bottom-0 left-5 select-none font-serif text-7xl leading-none text-gold-primary opacity-15"
+          aria-hidden="true"
+        >
+          ﴾
+        </span>
+
+        <p className="verse-text text-[length:clamp(1.6rem,5vw,2.4rem)] font-medium text-gold-light">
+          {verse.hemistich_1}
+        </p>
+        <p className="verse-text mt-2 text-[length:clamp(1.6rem,5vw,2.4rem)] font-medium text-gold-light opacity-85">
+          {verse.hemistich_2}
+        </p>
+
+        <div className="mt-8 flex flex-col items-center gap-1">
+          <Link
+            href={`/poet/${poem.poet.slug}`}
+            className="font-serif text-lg text-text-primary transition-colors hover:text-gold-light"
+          >
+            — {poem.poet.name_ar}
+          </Link>
+          <Link
+            href={`/poem/${poem.slug}`}
+            className="text-sm text-text-muted transition-colors hover:text-gold-light"
+          >
+            من قصيدة «{poem.title_ar}»
+          </Link>
+        </div>
+
+        <div className="mt-8">
+          <VerseDetailActions text={verse.full_verse} />
+        </div>
+      </section>
+
+      {/* AI explanation */}
+      <div className="mt-8">
+        <VerseExplanation explanations={explanations} />
+      </div>
+
+      {/* Read full poem */}
+      <Link
+        href={`/poem/${poem.slug}`}
+        className="group mt-8 flex items-center justify-between gap-3 rounded-2xl border border-border bg-surface p-5 transition-all duration-200 hover:border-[var(--border-strong)] hover:bg-surface-elevated"
+      >
+        <div className="flex items-center gap-4">
+          <span className="flex size-11 items-center justify-center rounded-xl border border-border bg-surface-elevated text-gold-primary">
+            <BookOpen className="size-5" />
+          </span>
+          <div>
+            <p className="text-xs text-text-muted">اقرأ القصيدة كاملة</p>
+            <p className="font-serif text-lg text-text-primary transition-colors group-hover:text-gold-light">
+              {poem.title_ar} — {poem.poet.name_ar}
+            </p>
+          </div>
+        </div>
+        <ChevronLeft className="size-5 text-text-muted transition-colors group-hover:text-gold-light" />
+      </Link>
+
+      {/* Related verses */}
+      {related.length > 0 && (
+        <section className="mt-12">
+          <h2 className="mb-5 font-serif text-2xl text-gold-light">أبيات مشابهة</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {related.map((r) => (
+              <Link
+                key={r.id}
+                href={`/verse/${r.id}`}
+                className="group rounded-2xl border border-border bg-surface p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--border-strong)] hover:bg-surface-elevated"
+              >
+                <p className="verse-text text-right text-base text-gold-light">{r.hemistich_1}</p>
+                <p className="verse-text text-right text-base text-gold-light opacity-75">
+                  {r.hemistich_2}
+                </p>
+                <p className="mt-3 text-xs text-text-muted">{r.poet_name_ar}</p>
               </Link>
-              <span>/</span>
-              {verse.poem_slug && (
-                <>
-                  <Link
-                    href={`/poem/${verse.poem_slug}`}
-                    className="hover:text-foreground transition-colors"
-                  >
-                    {verse.poem_title_ar}
-                  </Link>
-                  <span>/</span>
-                </>
-              )}
-              <span className="text-foreground line-clamp-1">{verse.hemistich_1}</span>
-            </nav>
+            ))}
           </div>
-        </div>
-
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-          <div className="max-w-4xl mx-auto">
-            {/* Main Verse Display */}
-            <div className="text-center mb-12">
-              {/* Verse */}
-              <div className="relative py-8 lg:py-12">
-                <span className="absolute top-0 right-0 text-8xl lg:text-9xl font-serif text-accent/10 leading-none select-none">
-                  {"«"}
-                </span>
-                <div className="relative font-serif text-3xl sm:text-4xl lg:text-5xl leading-loose">
-                  <p className="text-verse mb-4">{verse.hemistich_1}</p>
-                  <p className="text-muted-foreground">{verse.hemistich_2}</p>
-                </div>
-                <span className="absolute bottom-0 left-0 text-8xl lg:text-9xl font-serif text-accent/10 leading-none select-none">
-                  {"»"}
-                </span>
-              </div>
-
-              {/* Poet Info */}
-              <div className="inline-flex items-center gap-3 mt-6">
-                <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center">
-                  <span className="text-lg font-serif font-bold">
-                    {verse.poet_name_ar.charAt(0)}
-                  </span>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold">{verse.poet_name_ar}</p>
-                  {verse.poem_title_ar && (
-                    <p className="text-sm text-muted-foreground">{verse.poem_title_ar}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center justify-center gap-4 mt-8">
-                <button
-                  onClick={() => {
-                    const text = `${verse.hemistich_1}  ${verse.hemistich_2}\n— ${verse.poet_name_ar}`
-                    navigator.clipboard?.writeText(text)
-                    setIsBookmarked(true)
-                    setTimeout(() => setIsBookmarked(false), 2000)
-                  }}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-colors ${
-                    isBookmarked
-                      ? "bg-accent/10 text-accent"
-                      : "bg-secondary/50 hover:bg-secondary text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Bookmark className={`w-5 h-5 ${isBookmarked ? "fill-current" : ""}`} />
-                  <span className="text-sm font-medium">{isBookmarked ? "تم النسخ" : "نسخ البيت"}</span>
-                </button>
-                <button
-                  onClick={() => {
-                    const text = `${verse.hemistich_1}  ${verse.hemistich_2}\n— ${verse.poet_name_ar}`
-                    const url = window.location.href
-                    if (navigator.share) {
-                      navigator.share({ text, url })
-                    } else {
-                      navigator.clipboard?.writeText(`${text}\n${url}`)
-                    }
-                  }}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-secondary/50 hover:bg-secondary rounded-xl text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <Share2 className="w-5 h-5" />
-                  <span className="text-sm font-medium">مشاركة</span>
-                </button>
-              </div>
-            </div>
-
-            {/* AI Explanation */}
-            <ExplanationPanel verseId={verse.id} cached={verse.explanations} />
-
-            {/* Word Meanings (from cached explanations) */}
-            {wordMeanings.length > 0 && (
-              <section className="mb-10">
-                <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
-                  <button
-                    onClick={() => setShowWordMeanings(!showWordMeanings)}
-                    className="w-full flex items-center justify-between p-5 hover:bg-secondary/30 transition-colors"
-                  >
-                    <span className="flex items-center gap-2 font-medium">
-                      <BookOpen className="w-5 h-5 text-accent" />
-                      معاني الكلمات
-                    </span>
-                    {showWordMeanings ? (
-                      <ChevronUp className="w-5 h-5" />
-                    ) : (
-                      <ChevronDown className="w-5 h-5" />
-                    )}
-                  </button>
-                  {showWordMeanings && (
-                    <div className="px-6 pb-6 border-t border-border/50 pt-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {wordMeanings.map((item, i) => (
-                          <div key={i} className="p-3 bg-secondary/30 rounded-lg">
-                            <p className="font-serif text-base font-medium text-accent mb-0.5">
-                              {item.word}
-                            </p>
-                            <p className="text-sm text-muted-foreground">{item.meaning}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </section>
-            )}
-
-            {/* View Full Poem */}
-            {verse.poem_slug && (
-              <section className="mb-10">
-                <Link
-                  href={`/poem/${verse.poem_slug}`}
-                  className="flex items-center justify-between p-6 bg-secondary/30 rounded-xl hover:bg-secondary/50 transition-colors group"
-                >
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">من قصيدة</p>
-                    <p className="font-semibold text-lg">{verse.poem_title_ar}</p>
-                    <p className="text-sm text-muted-foreground mt-1">{verse.poet_name_ar}</p>
-                  </div>
-                  <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground group-hover:-translate-x-1 transition-all" />
-                </Link>
-              </section>
-            )}
-
-            {/* Similar Verses */}
-            {verse.related_verses?.length > 0 && (
-              <section>
-                <h2 className="text-xl font-semibold mb-6">أبيات مشابهة</h2>
-                <div className="space-y-4">
-                  {verse.related_verses.map((rv) => (
-                    <Link
-                      key={rv.id}
-                      href={`/verse/${rv.id}`}
-                      className="block p-6 bg-card rounded-xl border border-border/50 hover:border-border hover:shadow-md transition-all group"
-                    >
-                      <div className="font-serif text-lg leading-loose mb-3">
-                        <p className="text-verse">{rv.hemistich_1}</p>
-                        <p className="text-muted-foreground">{rv.hemistich_2}</p>
-                      </div>
-                      <p className="text-sm font-medium">{rv.poet_name_ar}</p>
-                    </Link>
-                  ))}
-                </div>
-              </section>
-            )}
-          </div>
-        </div>
-      </main>
-
-      <Footer />
+        </section>
+      )}
     </div>
   )
 }
