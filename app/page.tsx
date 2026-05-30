@@ -8,7 +8,7 @@ import { Categories } from "@/components/categories"
 import { Sparkles, Search, BookOpen, Brain } from "lucide-react"
 import { getPoets } from "@/lib/api"
 
-export const revalidate = 3600
+export const revalidate = 60
 
 export default async function Home() {
   const poetsData = await getPoets({ limit: 1 })

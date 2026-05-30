@@ -197,7 +197,7 @@ export async function getPoets(params?: {
   if (params?.limit) qs.set("limit", String(params.limit))
   const query = qs.toString() ? `?${qs}` : ""
   return apiFetch<PoetsListResponse>(`/poets/${query}`, {
-    next: { revalidate: 3600, tags: ["poets"] },
+    next: { revalidate: 60, tags: ["poets"] },
   })
 }
 
