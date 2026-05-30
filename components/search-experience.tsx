@@ -1,10 +1,10 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Search, BookOpen, Star, Sparkles, Type, Brain, X } from 'lucide-react'
-import { searchPoetry } from '@/lib/api'
+// search uses /api/v1/search via Next.js rewrite (client-side fetch)
 import {
   eraLabel,
   ERA_ORDER,
@@ -37,31 +37,39 @@ export function SearchExperience({ initialQuery }: { initialQuery: string }) {
   const [totalMatches, setTotalMatches] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
 
-  useMemo(() => {
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
     if (!query.trim()) {
       setGroups([])
       setTotalMatches(0)
       return
     }
-    setIsLoading(true)
-    const modeMap: Record<string, string> = { smart: 'hybrid', text: 'keyword', meaning: 'semantic' }
-    searchPoetry({
-      q: query,
-      mode: modeMap[mode] || 'hybrid',
-      era: era !== 'all' ? era : undefined,
-      is_famous: famousOnly || undefined,
-      limit: 20,
-    }).then((data) => {
-      if (data?.hits) {
-        const g = groupHitsByPoem(data.hits)
-        setGroups(g)
-        setTotalMatches(data.estimated_total_hits || data.hits.length)
-      } else {
-        setGroups([])
-        setTotalMatches(0)
-      }
-      setIsLoading(false)
-    })
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      setIsLoading(true)
+      const modeMap: Record<string, string> = { smart: 'hybrid', text: 'keyword', meaning: 'semantic' }
+      const qs = new URLSearchParams({ q: query, mode: modeMap[mode] || 'hybrid', limit: '20' })
+      if (era && era !== 'all') qs.set('era', era)
+      if (famousOnly) qs.set('is_famous', 'true')
+
+      fetch(`/api/v1/search/?${qs}`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => {
+          if (data?.hits) {
+            const g = groupHitsByPoem(data.hits)
+            setGroups(g)
+            setTotalMatches(data.estimated_total_hits || data.hits.length)
+          } else {
+            setGroups([])
+            setTotalMatches(0)
+          }
+        })
+        .catch(() => { setGroups([]); setTotalMatches(0) })
+        .finally(() => setIsLoading(false))
+    }, 350)
+
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
   }, [query, mode, era, famousOnly])
 
   return (
