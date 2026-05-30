@@ -1,12 +1,12 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import Link from "next/link"
-import { 
-  Heart, 
-  Feather, 
-  Sword, 
-  Moon, 
-  Mountain, 
+import {
+  Heart,
+  Feather,
+  Sword,
+  Moon,
+  Mountain,
   BookOpen,
   Sparkles,
   TrendingUp,
@@ -104,14 +104,14 @@ const curatedLists = [
   },
 ]
 
-// Eras
+// Eras — ids match backend era slugs for /poets?era= filtering
 const eras = [
-  { id: "jahili", name: "العصر الجاهلي", period: "قبل الإسلام", poets: 45 },
-  { id: "islami", name: "العصر الإسلامي", period: "1-40 هـ", poets: 32 },
-  { id: "umawi", name: "العصر الأموي", period: "41-132 هـ", poets: 58 },
-  { id: "abbasi", name: "العصر العباسي", period: "132-656 هـ", poets: 124 },
-  { id: "andalusi", name: "العصر الأندلسي", period: "92-897 هـ", poets: 87 },
-  { id: "hadith", name: "العصر الحديث", period: "1800م - الآن", poets: 156 },
+  { id: "pre_islamic", name: "العصر الجاهلي", period: "قبل الإسلام", poets: 45 },
+  { id: "islamic_early", name: "العصر الإسلامي", period: "1-40 هـ", poets: 32 },
+  { id: "umayyad", name: "العصر الأموي", period: "41-132 هـ", poets: 58 },
+  { id: "abbasid", name: "العصر العباسي", period: "132-656 هـ", poets: 124 },
+  { id: "andalusian", name: "العصر الأندلسي", period: "92-897 هـ", poets: 87 },
+  { id: "modern", name: "العصر الحديث", period: "1800م - الآن", poets: 156 },
 ]
 
 // Trending verses for discovery
@@ -120,19 +120,16 @@ const trendingToday = [
     id: 1,
     verse: "ألا ليت الشباب يعود يوماً",
     poet: "أبو العتاهية",
-    likes: 1234,
   },
   {
     id: 2,
     verse: "وما من كاتب إلا سيفنى",
     poet: "علي بن أبي طالب",
-    likes: 987,
   },
   {
     id: 3,
     verse: "تعلم فليس المرء يولد عالماً",
     poet: "الشافعي",
-    likes: 876,
   },
 ]
 
@@ -169,7 +166,7 @@ export default function DiscoverPage() {
               {collections.filter(c => c.featured).map((collection) => (
                 <Link
                   key={collection.id}
-                  href={`/category/${collection.id}`}
+                  href={`/search?q=${encodeURIComponent(collection.name)}`}
                   className="group relative p-8 bg-card rounded-2xl border border-border/50 hover:border-border hover:shadow-lg transition-all overflow-hidden"
                 >
                   <div className={`inline-flex p-3 rounded-xl ${collection.color} mb-4 transition-transform group-hover:scale-110`}>
@@ -210,7 +207,7 @@ export default function DiscoverPage() {
               {curatedLists.map((list) => (
                 <Link
                   key={list.id}
-                  href={`/collection/${list.id}`}
+                  href={`/search?q=${encodeURIComponent(list.title)}`}
                   className="group p-6 bg-card rounded-xl border border-border/50 hover:border-border hover:shadow-md transition-all"
                 >
                   <div className="w-12 h-12 rounded-lg bg-secondary/50 flex items-center justify-center mb-4">
@@ -233,7 +230,7 @@ export default function DiscoverPage() {
               {eras.map((era) => (
                 <Link
                   key={era.id}
-                  href={`/era/${era.id}`}
+                  href={`/poets?era=${era.id}`}
                   className="group flex items-center justify-between p-5 bg-card rounded-xl border border-border/50 hover:border-border hover:shadow-md transition-all"
                 >
                   <div>
@@ -270,13 +267,7 @@ export default function DiscoverPage() {
                       <p className="font-serif text-lg leading-relaxed text-verse mb-3 line-clamp-2">
                         {verse.verse}
                       </p>
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium">{verse.poet}</p>
-                        <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Heart className="w-4 h-4" />
-                          {verse.likes}
-                        </span>
-                      </div>
+                      <p className="text-sm font-medium">{verse.poet}</p>
                     </div>
                   </div>
                 </Link>

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { TrendingUp, Heart, MessageCircle } from "lucide-react"
+import { TrendingUp } from "lucide-react"
 import { getPoets, type SearchHit } from "@/lib/api"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
@@ -26,10 +26,6 @@ async function fetchTrending(): Promise<SearchHit[]> {
     return FALLBACK
   }
 }
-
-// Fake engagement numbers based on position index
-const LIKES = [2847, 2156, 3421, 1987, 2654]
-const COMMENTS = [156, 98, 234, 87, 145]
 
 export async function TrendingVerses() {
   const verses = await fetchTrending()
@@ -73,16 +69,11 @@ export async function TrendingVerses() {
                   {/* Meta */}
                   <div className="flex flex-wrap items-center gap-4 mt-4 text-sm">
                     <span className="font-medium">{verse.poet_name_ar}</span>
-                    <div className="flex items-center gap-4 mr-auto text-muted-foreground">
-                      <span className="flex items-center gap-1.5">
-                        <Heart className="w-4 h-4" />
-                        {(LIKES[index] ?? 1000).toLocaleString("ar-SA")}
+                    {verse.is_famous && (
+                      <span className="mr-auto px-2 py-0.5 bg-accent/10 text-accent rounded-full text-xs">
+                        مشهور
                       </span>
-                      <span className="flex items-center gap-1.5">
-                        <MessageCircle className="w-4 h-4" />
-                        {COMMENTS[index] ?? 50}
-                      </span>
-                    </div>
+                    )}
                   </div>
                 </div>
               </div>

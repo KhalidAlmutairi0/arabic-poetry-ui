@@ -6,8 +6,14 @@ import { TrendingVerses } from "@/components/trending-verses"
 import { DailyVerse } from "@/components/daily-verse"
 import { Categories } from "@/components/categories"
 import { Sparkles, Search, BookOpen, Brain } from "lucide-react"
+import { getPoets } from "@/lib/api"
 
-export default function Home() {
+export const revalidate = 3600
+
+export default async function Home() {
+  const poetsData = await getPoets({ limit: 1 })
+  const totalPoets = poetsData?.total ?? 0
+  const hasStats = totalPoets > 0
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -45,25 +51,21 @@ export default function Home() {
             {/* Search */}
             <HeroSearch />
 
-            {/* Stats */}
-            <div className="flex flex-wrap justify-center gap-8 lg:gap-16 mt-16 pt-8 border-t border-border/50">
-              <div className="text-center">
-                <p className="text-3xl lg:text-4xl font-bold text-foreground">١٢,٥٠٠+</p>
-                <p className="text-sm text-muted-foreground mt-1">قصيدة</p>
+            {/* Stats — only show if we have real data */}
+            {hasStats && (
+              <div className="flex flex-wrap justify-center gap-8 lg:gap-16 mt-16 pt-8 border-t border-border/50">
+                <div className="text-center">
+                  <p className="text-3xl lg:text-4xl font-bold text-foreground">
+                    {totalPoets.toLocaleString("ar-SA")}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">شاعر</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-3xl lg:text-4xl font-bold text-foreground">١٠+</p>
+                  <p className="text-sm text-muted-foreground mt-1">عصور أدبية</p>
+                </div>
               </div>
-              <div className="text-center">
-                <p className="text-3xl lg:text-4xl font-bold text-foreground">٨٥٠+</p>
-                <p className="text-sm text-muted-foreground mt-1">شاعر</p>
-              </div>
-              <div className="text-center">
-                <p className="text-3xl lg:text-4xl font-bold text-foreground">٥٠,٠٠٠+</p>
-                <p className="text-sm text-muted-foreground mt-1">بيت شعري</p>
-              </div>
-              <div className="text-center">
-                <p className="text-3xl lg:text-4xl font-bold text-foreground">١٠+</p>
-                <p className="text-sm text-muted-foreground mt-1">عصور أدبية</p>
-              </div>
-            </div>
+            )}
           </div>
         </section>
 
